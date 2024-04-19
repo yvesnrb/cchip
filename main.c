@@ -16,7 +16,11 @@ main (void)
     }
 
   load_rom (chip, "roms/logo.ch8");
-  hex_print (chip->memory, 0x200, 0x305);
+
+  chip->display[0][0] = true;
+  chip->display[31][63] = true;
+
+  display_print (chip);
 
   free (chip);
   return EXIT_SUCCESS;

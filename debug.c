@@ -1,5 +1,6 @@
-#include "debug.h"
 #include <stdio.h>
+#include "machine.h" 
+#include "debug.h"
 
 char
 printable_char (unsigned char c)
@@ -41,6 +42,25 @@ hex_print (unsigned char* m, unsigned int start, unsigned int end)
 	    printf ("%c", printable_char(m[addr]));
 	  else
 	    printf (" ");
+	}
+
+      printf ("\n");
+    }
+}
+
+void
+display_print (machine* m)
+{
+  for (int i = 0; i < DISPLAY_LINES; i++)
+    {
+      for (int j = 0; j < DISPLAY_COLUMNS; j++)
+	{	  
+	  if (m->display[i][j])
+	    printf ("\033[0;37m");
+	  else
+	    printf ("\033[0;30m");
+
+	  printf ("█\033[0m");
 	}
 
       printf ("\n");
