@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "machine.h"
 #include "debug.h"
 #include "rom.h"
 
@@ -15,7 +16,7 @@ main (void)
     }
 
   load_rom (chip, "roms/logo.ch8");
-  hex_print (chip->memory, 0x000, 0xFFF);
+  hex_print (chip->memory, 0x200, 0x305);
 
   free (chip);
   return EXIT_SUCCESS;
