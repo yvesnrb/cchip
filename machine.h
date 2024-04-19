@@ -1,4 +1,8 @@
+#pragma once
 #include <stdbool.h>
+
+#define MAX_PROGRAM_LENGTH 3584
+#define PROGRAM_START 0x200
 
 typedef struct machine machine;
 
