@@ -3,7 +3,7 @@
 #include "debug.h"
 
 char
-printable_char (unsigned char c)
+printable_char (byte c)
 {
   if (c >= ASCII_PRINTABLE_START && c <= ASCII_PRINTABLE_END)
     return c;
@@ -12,7 +12,7 @@ printable_char (unsigned char c)
 }
 
 void
-hex_print (unsigned char* m, unsigned int start, unsigned int end)
+hex_print (byte *bytes, address start, address end)
 {
   unsigned int byte_count = end - start + 1,
     line_count = (byte_count + (HEXP_LINE_LENGTH - 1)) / HEXP_LINE_LENGTH;
@@ -27,7 +27,7 @@ hex_print (unsigned char* m, unsigned int start, unsigned int end)
 	  unsigned int addr = line_start + j;
 
 	  if (addr <= end)
-	    printf ("%02X ", m[addr]);
+	    printf ("%02X ", bytes[addr]);
 	  else
 	    printf ("   ");
 	}
@@ -39,7 +39,7 @@ hex_print (unsigned char* m, unsigned int start, unsigned int end)
 	  unsigned int addr = line_start + j;
 
 	  if (addr <= end)
-	    printf ("%c", printable_char(m[addr]));
+	    printf ("%c", printable_char(bytes[addr]));
 	  else
 	    printf (" ");
 	}
@@ -49,13 +49,13 @@ hex_print (unsigned char* m, unsigned int start, unsigned int end)
 }
 
 void
-display_print (machine* m)
+display_print (Machine *machine)
 {
   for (int i = 0; i < DISPLAY_LINES; i++)
     {
       for (int j = 0; j < DISPLAY_COLUMNS; j++)
 	{	  
-	  if (m->display[i][j])
+	  if (machine->display[i][j])
 	    printf ("\033[0;37m");
 	  else
 	    printf ("\033[0;30m");

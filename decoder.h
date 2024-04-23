@@ -1,6 +1,16 @@
+/* This module contains helper functions for decoding instructions. */
+
 #pragma once
 
 #include <stdbool.h>
+#include "machine.h"
 
-void split_nibbles (unsigned char nibbles[4], unsigned char high, unsigned char low);
-bool matches_op (char pattern[5], unsigned char high, unsigned char low);
+/* Split a high and a low bytes into an array of four nibbles. */
+void split_nibbles (byte nibbles[4], byte high, byte low);
+
+/* Return true if a high and a low bytes match a pattern string.
+   The pattern string must contain four characters, the characters 0-F
+   will match that literal value on high/low. Any other characters will
+   match with any value at all.
+ */
+bool matches_op (char pattern[5], byte high, byte low);

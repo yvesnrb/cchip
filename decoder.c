@@ -1,6 +1,8 @@
 #include <stdbool.h>
+#include "decoder.h"
+#include "machine.h"
 
-unsigned char
+byte
 char_to_hex (char c)
 {
   switch (c)
@@ -59,7 +61,7 @@ char_to_hex (char c)
 }
 
 void
-split_nibbles (unsigned char nibbles[4], unsigned char high, unsigned char low)
+split_nibbles (byte nibbles[4], byte high, byte low)
 {
   nibbles[0] = (high & 0b0000000011110000) >> 4;
   nibbles[1] = (high & 0b0000000000001111);
@@ -68,9 +70,9 @@ split_nibbles (unsigned char nibbles[4], unsigned char high, unsigned char low)
 }
 
 bool
-matches_op (char pattern[5], unsigned char high, unsigned char low)
+matches_op (char pattern[5], byte high, byte low)
 {
-  unsigned char pattern_nibbles[4], nibbles[4];
+  byte pattern_nibbles[4], nibbles[4];
   split_nibbles (nibbles, high, low);
 
   for (int i = 0; pattern[i] != '\0'; i++)

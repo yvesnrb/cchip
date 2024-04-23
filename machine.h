@@ -6,18 +6,23 @@
 #define PROGRAM_START 0x200
 #define DISPLAY_LINES 32
 #define DISPLAY_COLUMNS 64
+#define SPRITE_WIDTH 8
 
-typedef struct machine machine;
+typedef struct Machine Machine;
+typedef unsigned short address;
+typedef unsigned char byte;
 
-struct machine
+struct Machine
 {
-  unsigned char memory[4096];
-  unsigned char registers[16];
-  unsigned char delay;
-  unsigned char sound;
-  unsigned char sp;
-  unsigned short i;
-  unsigned short pc;
-  unsigned short stack[16];
+  byte memory[4096];
+  byte registers[16];
+  byte delay;
+  byte sound;
+  byte sp;
+  address i;
+  address pc;
+  address stack[16];
   bool display[DISPLAY_LINES][DISPLAY_COLUMNS];
 };
+
+void step (Machine* machine);

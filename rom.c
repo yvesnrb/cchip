@@ -1,12 +1,13 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "machine.h"
+#include "rom.h"
 
 void
-load_rom (machine* m, char filename[])
+load_rom (Machine *machine, char filename[])
 {
   FILE* file = fopen (filename, "rb");
-  unsigned char* buffer;
+  byte *buffer;
   unsigned long length;
 
   if (!file)
@@ -25,7 +26,7 @@ load_rom (machine* m, char filename[])
       exit (EXIT_FAILURE);
     }
 
-  buffer = (unsigned char*) malloc (length * sizeof (unsigned char));
+  buffer = (byte*) malloc (length * sizeof (byte));
 
   if (!buffer)
     {
@@ -35,8 +36,10 @@ load_rom (machine* m, char filename[])
 
   fread (buffer, length, 1, file);
 
-  for (unsigned short i = PROGRAM_START, j = 0; j < length; i++, j++)
-    m->memory[i] = buffer[j];
+  for (address i = PROGRAM_START, j = 0; j < length; i++, j++)
+    machine->memory[i] = buffer[j];
+
+  machine->pc = PROGRAM_START;
 
   fclose (file);
   free (buffer);

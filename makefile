@@ -1,4 +1,4 @@
-sources := main.c rom.c debug.c decoder.c
+sources := main.c rom.c debug.c decoder.c machine.c ops.c
 
 chip: $(sources)
 	cc $(sources) -o chip
