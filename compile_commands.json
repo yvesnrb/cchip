@@ -1,0 +1,114 @@
+[
+  {
+    "arguments": [
+      "/usr/bin//cc",
+      "-c",
+      "-D_THREAD_SAFE",
+      "-I/opt/local/include",
+      "-I/opt/local/include/SDL2",
+      "-Wall",
+      "-o",
+      "chip",
+      "main.c"
+    ],
+    "directory": "/Users/yves/Desktop/CChip",
+    "file": "/Users/yves/Desktop/CChip/main.c",
+    "output": "/Users/yves/Desktop/CChip/chip"
+  },
+  {
+    "arguments": [
+      "/usr/bin//cc",
+      "-c",
+      "-D_THREAD_SAFE",
+      "-I/opt/local/include",
+      "-I/opt/local/include/SDL2",
+      "-Wall",
+      "-o",
+      "chip",
+      "rom.c"
+    ],
+    "directory": "/Users/yves/Desktop/CChip",
+    "file": "/Users/yves/Desktop/CChip/rom.c",
+    "output": "/Users/yves/Desktop/CChip/chip"
+  },
+  {
+    "arguments": [
+      "/usr/bin//cc",
+      "-c",
+      "-D_THREAD_SAFE",
+      "-I/opt/local/include",
+      "-I/opt/local/include/SDL2",
+      "-Wall",
+      "-o",
+      "chip",
+      "debug.c"
+    ],
+    "directory": "/Users/yves/Desktop/CChip",
+    "file": "/Users/yves/Desktop/CChip/debug.c",
+    "output": "/Users/yves/Desktop/CChip/chip"
+  },
+  {
+    "arguments": [
+      "/usr/bin//cc",
+      "-c",
+      "-D_THREAD_SAFE",
+      "-I/opt/local/include",
+      "-I/opt/local/include/SDL2",
+      "-Wall",
+      "-o",
+      "chip",
+      "decoder.c"
+    ],
+    "directory": "/Users/yves/Desktop/CChip",
+    "file": "/Users/yves/Desktop/CChip/decoder.c",
+    "output": "/Users/yves/Desktop/CChip/chip"
+  },
+  {
+    "arguments": [
+      "/usr/bin//cc",
+      "-c",
+      "-D_THREAD_SAFE",
+      "-I/opt/local/include",
+      "-I/opt/local/include/SDL2",
+      "-Wall",
+      "-o",
+      "chip",
+      "machine.c"
+    ],
+    "directory": "/Users/yves/Desktop/CChip",
+    "file": "/Users/yves/Desktop/CChip/machine.c",
+    "output": "/Users/yves/Desktop/CChip/chip"
+  },
+  {
+    "arguments": [
+      "/usr/bin//cc",
+      "-c",
+      "-D_THREAD_SAFE",
+      "-I/opt/local/include",
+      "-I/opt/local/include/SDL2",
+      "-Wall",
+      "-o",
+      "chip",
+      "ops.c"
+    ],
+    "directory": "/Users/yves/Desktop/CChip",
+    "file": "/Users/yves/Desktop/CChip/ops.c",
+    "output": "/Users/yves/Desktop/CChip/chip"
+  },
+  {
+    "arguments": [
+      "/usr/bin//cc",
+      "-c",
+      "-D_THREAD_SAFE",
+      "-I/opt/local/include",
+      "-I/opt/local/include/SDL2",
+      "-Wall",
+      "-o",
+      "chip",
+      "sdl.c"
+    ],
+    "directory": "/Users/yves/Desktop/CChip",
+    "file": "/Users/yves/Desktop/CChip/sdl.c",
+    "output": "/Users/yves/Desktop/CChip/chip"
+  }
+]

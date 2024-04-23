@@ -1,11 +1,12 @@
-sources := main.c rom.c debug.c decoder.c machine.c ops.c
+sources := main.c rom.c debug.c decoder.c machine.c ops.c sdl.c
+libs := $(shell pkg-config --libs --cflags SDL2)
 
 chip: $(sources)
-	cc $(sources) -o chip
+	cc $(libs) $(sources) -Wall -o chip
 
 .PHONY: debug
 debug: $(sources)
-	cc $(sources) -g -O0 -o chip
+	cc $(libs) $(sources) -g -O0 -Wall -o chip
 
 .PHONY: clean
 clean:

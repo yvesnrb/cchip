@@ -1,14 +1,19 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <SDL2/SDL.h>
 #include "machine.h"
 #include "debug.h"
 #include "rom.h"
 #include "decoder.h"
+#include "sdl.h"
 
 int
 main (void)
 {
   Machine *machine = (Machine*) malloc (sizeof (Machine));
+  SDL_Renderer *renderer = sdl_setup (10);
+  SDL_Event e;
+  bool quit = false;
 
   if (!machine)
     {
@@ -18,12 +23,22 @@ main (void)
 
   load_rom (machine, "/Users/yves/Desktop/CChip/roms/logo.ch8");
 
-  for (int i = 0; i < 40; i++)
-    step (machine);
+  while (!quit)
+    {
+      step (machine);
+      sdl_render (renderer, machine);
+      SDL_Delay (250);
+      
+      while (SDL_PollEvent(&e))
+	{
+	  if (e.type == SDL_QUIT)
+	    {
+	      quit = true;
+	    }
+	}
+    }
 
-  display_print (machine);
-  printf ("program counter: 0x%X\n", machine->pc);
-
+  SDL_Quit ();
   free (machine);
   return EXIT_SUCCESS;
 }
