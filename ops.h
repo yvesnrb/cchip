@@ -214,3 +214,6 @@ void ld_i_vx (Machine *machine, byte nibbles[4]);
    into registers V0 through Vx.
  */
 void ld_vx_i (Machine *machine, byte nibbles[4]);
+
+/* NOP - Simply increments the program counter and moves on. */
+void nop (Machine *machine, byte nibbles[4]);

@@ -20,6 +20,10 @@ step (Machine *machine)
     drw_vx_vy_nibble (machine, nibbles);
   else if (matches_op ("1nnn", high, low))
     jp_addr (machine, nibbles);
+  else if (matches_op ("7xkk", high, low))
+    add_vx_byte (machine, nibbles);
+  else
+    nop (machine, nibbles);
 
   /* TODO protect pc out of bounds */
 }

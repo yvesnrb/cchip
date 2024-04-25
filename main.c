@@ -1,19 +1,57 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <SDL2/SDL.h>
+#include <string.h>
+#include <unistd.h>
 #include "machine.h"
 #include "debug.h"
 #include "rom.h"
 #include "decoder.h"
 #include "sdl.h"
 
-int
-main (void)
+void
+usage ()
 {
-  Machine *machine = (Machine*) malloc (sizeof (Machine));
-  SDL_Renderer *renderer = sdl_setup (10);
+  printf ("Usage: chip [-s number] rompath\n");
+}
+
+int
+main (int argc, char **argv)
+{
+  Machine *machine = NULL;
+  SDL_Renderer *renderer = NULL;
   SDL_Event e;
   bool quit = false;
+  int scaling = 10;
+  char rom_path[100];
+  char c;
+  opterr = 0;
+
+  while ((c = getopt (argc, argv, "s:")) != -1)
+    {
+      switch (c)
+	{
+	case 's':
+	  scaling = strtol (optarg, NULL, 10);
+	  break;
+	case '?': default:
+	  usage ();
+	  exit (EXIT_FAILURE);
+	  break;
+	}
+    }
+
+  if (argv[optind] == NULL)
+    {
+      usage ();
+      exit (EXIT_FAILURE);
+    }
+  else
+    {
+      strncpy (rom_path, argv[optind], sizeof (rom_path));
+    }
+
+  machine = (Machine*) malloc (sizeof (Machine));
 
   if (!machine)
     {
@@ -21,7 +59,8 @@ main (void)
       exit (EXIT_FAILURE);
     }
 
-  load_rom (machine, "/Users/yves/Desktop/CChip/roms/logo.ch8");
+  load_rom (machine, rom_path);
+  renderer = sdl_setup (scaling);
 
   while (!quit)
     {

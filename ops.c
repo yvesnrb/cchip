@@ -66,3 +66,18 @@ drw_vx_vy_nibble (Machine *machine, byte nibbles[4])
   machine->registers[0xF] = collision;
   machine->pc += 2;
 }
+
+void
+add_vx_byte (Machine *machine, byte nibbles[4])
+{
+  byte vx = nibbles[1], kk = (nibbles[2] << 4) | (nibbles[3]);
+
+  machine->registers[vx] += kk;
+  machine->pc += 2;
+}
+
+void
+nop (Machine *machine, byte nibbles[4])
+{
+  machine->pc += 2;
+}
