@@ -1,6 +1,6 @@
 /* This module contains debug functions for use in development. */
-
-#pragma once
+#ifndef DEBUG_H
+#define DEBUG_H
 
 #include "machine.h"
 
@@ -17,3 +17,5 @@ void hex_print (byte *bytes, address start, address end);
    representation of each pixel.
  */
 void display_print (Machine *machine);
+
+#endif

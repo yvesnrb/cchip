@@ -1,6 +1,6 @@
 /* This module contains functions for handling CHIP-8 ROM files. */
-
-#pragma once
+#ifndef ROM_H
+#define ROM_H
 
 #include "machine.h"
 
@@ -9,3 +9,5 @@
    `machine` is also set to PROGRAM_START.
  */
 void load_rom (Machine *machine, char filename[]);
+
+#endif

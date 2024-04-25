@@ -1,8 +1,8 @@
 /* This module contains functions for executing each operation on the
    CHIP-8 instruction set.
  */
-
-#pragma once
+#ifndef OPS_H
+#define OPS_H
 
 #include "machine.h"
 
@@ -217,3 +217,5 @@ void ld_vx_i (Machine *machine, byte nibbles[4]);
 
 /* NOP - Simply increments the program counter and moves on. */
 void nop (Machine *machine, byte nibbles[4]);
+
+#endif

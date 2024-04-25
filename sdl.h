@@ -1,8 +1,8 @@
 /* This module contains functions for sound, video and keyboard input
    using SDL2.
  */
-
-#pragma once
+#ifndef MYSDL_H
+#define MYSDL_H
 
 #include <SDL2/SDL.h>
 #include "machine.h"
@@ -19,3 +19,5 @@ SDL_Renderer* sdl_setup (int scaling_factor);
    `renderer`.
  */
 void sdl_render (SDL_Renderer *renderer, Machine *machine);
+
+#endif

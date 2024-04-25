@@ -1,3 +1,5 @@
+#include <SDL2/SDL.h>
+#include "machine.h"
 #include "sdl.h"
 
 SDL_Renderer*

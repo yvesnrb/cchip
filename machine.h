@@ -1,4 +1,8 @@
-#pragma once
+/* This module contains definitions for the `machine` - the thing that
+   is being emulated, as well as functions for interacting with it.
+ */
+#ifndef MACHINE_H
+#define MACHINE_H
 
 #include <stdbool.h>
 
@@ -25,4 +29,9 @@ struct Machine
   bool display[DISPLAY_LINES][DISPLAY_COLUMNS];
 };
 
+/* Take a machine `machine` and do the necessary operations to
+   complete one clock cycle.
+ */
 void step (Machine* machine);
+
+#endif
