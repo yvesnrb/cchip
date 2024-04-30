@@ -1,5 +1,6 @@
 /* This module contains functions for sound, video and keyboard input
-   using SDL2.
+   using SDL2. It also defines the main execution loop, since that is
+   complexed with SDL.
  */
 #ifndef MYSDL_H
 #define MYSDL_H
@@ -19,5 +20,10 @@ SDL_Renderer* sdl_setup (int scaling_factor);
    `renderer`.
  */
 void sdl_render (SDL_Renderer *renderer, Machine *machine);
+
+/* Loop the simulation on `machine`, using `renderer` until a
+   quittable event occurs.
+ */
+void sdl_loop (Machine *machine, SDL_Renderer *renderer);
 
 #endif

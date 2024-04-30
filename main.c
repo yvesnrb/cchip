@@ -1,7 +1,6 @@
 #include <SDL2/SDL.h>
 #include "args.h"
 #include "machine.h"
-#include "debug.h"
 #include "rom.h"
 #include "decoder.h"
 #include "sdl.h"
@@ -11,8 +10,6 @@ main (int argc, char **argv)
 {
   Machine *machine = NULL;
   SDL_Renderer *renderer = NULL;
-  SDL_Event e;
-  bool quit = false;
   int scaling = 10;
   char rom_path[100];
 
@@ -28,23 +25,8 @@ main (int argc, char **argv)
 
   load_rom (machine, rom_path);
   renderer = sdl_setup (scaling);
+  sdl_loop (machine, renderer);
 
-  while (!quit)
-    {
-      step (machine);
-      sdl_render (renderer, machine);
-      SDL_Delay (250);
-      
-      while (SDL_PollEvent(&e))
-	{
-	  if (e.type == SDL_QUIT)
-	    {
-	      quit = true;
-	    }
-	}
-    }
-
-  SDL_Quit ();
   free (machine);
   return EXIT_SUCCESS;
 }

@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <SDL2/SDL.h>
 #include "machine.h"
 #include "sdl.h"
@@ -54,4 +55,28 @@ sdl_render (SDL_Renderer *renderer, Machine *machine)
       }
 
   SDL_RenderPresent (renderer);
+}
+
+void
+sdl_loop (Machine *machine, SDL_Renderer *renderer)
+{
+  SDL_Event e;
+  bool quit = false;
+
+  while (!quit)
+    {
+      step (machine);
+      sdl_render (renderer, machine);
+      SDL_Delay (250);
+
+      while (SDL_PollEvent(&e))
+	{
+	  if (e.type == SDL_QUIT)
+	    {
+	      quit = true;
+	    }
+	}
+    }
+
+  SDL_Quit ();
 }
