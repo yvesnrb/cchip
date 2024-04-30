@@ -8,10 +8,10 @@
 #define ASCII_PRINTABLE_START 32
 #define ASCII_PRINTABLE_END 127
 
-/* Print an array of bytes `bytes` in a hex dump format, starting at
+/* Print an array of words `bytes` in a hex dump format, starting at
    address `start` and ending at address `end`.
  */
-void hex_print (byte *bytes, address start, address end);
+void hex_print (word *bytes, address start, address end);
 
 /* Print the display of `machine` to the terminal using a simple ASCII
    representation of each pixel.

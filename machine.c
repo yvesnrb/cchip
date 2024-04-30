@@ -5,7 +5,7 @@
 void
 step (Machine *machine)
 {
-  byte high = machine->memory[machine->pc],
+  word high = machine->memory[machine->pc],
     low = machine->memory[machine->pc + 1], nibbles[4];
 
   split_nibbles (nibbles, high, low);

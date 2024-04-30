@@ -3,7 +3,7 @@
 #include "machine.h"
 
 void
-cls (Machine *machine, byte nibbles[4])
+cls (Machine *machine, word nibbles[4])
 {
   for (int i = 0; i < DISPLAY_LINES; i++)
     for (int j = 0; j < DISPLAY_COLUMNS; j++)
@@ -13,7 +13,7 @@ cls (Machine *machine, byte nibbles[4])
 }
 
 void
-jp_addr (Machine *machine, byte nibbles[4])
+jp_addr (Machine *machine, word nibbles[4])
 {
   unsigned short nnn = (nibbles[1] << 8) | (nibbles[2] << 4) | nibbles[3];
 
@@ -21,7 +21,7 @@ jp_addr (Machine *machine, byte nibbles[4])
 }
 
 void
-ld_vx_byte (Machine *machine, byte nibbles[4])
+ld_vx_byte (Machine *machine, word nibbles[4])
 {
   unsigned char vx = nibbles[1], kk = (nibbles[2] << 4) | nibbles[3];
 
@@ -30,7 +30,7 @@ ld_vx_byte (Machine *machine, byte nibbles[4])
 }
 
 void
-ld_i_addr (Machine *machine, byte nibbles[4])
+ld_i_addr (Machine *machine, word nibbles[4])
 {
   unsigned short nnn = (nibbles[1] << 8) | (nibbles[2] << 4) | nibbles[3];
 
@@ -39,9 +39,9 @@ ld_i_addr (Machine *machine, byte nibbles[4])
 }
 
 void
-drw_vx_vy_nibble (Machine *machine, byte nibbles[4])
+drw_vx_vy_nibble (Machine *machine, word nibbles[4])
 {
-  byte vx = nibbles[1], vy = nibbles[2], n = nibbles[3],
+  word vx = nibbles[1], vy = nibbles[2], n = nibbles[3],
     x = machine->registers[vx], y = machine->registers[vy], sprite_byte;
   address sprite_start = machine->i, sprite_end = machine->i + n;
   bool sprite_pixel, collision = false;
@@ -68,16 +68,16 @@ drw_vx_vy_nibble (Machine *machine, byte nibbles[4])
 }
 
 void
-add_vx_byte (Machine *machine, byte nibbles[4])
+add_vx_byte (Machine *machine, word nibbles[4])
 {
-  byte vx = nibbles[1], kk = (nibbles[2] << 4) | (nibbles[3]);
+  word vx = nibbles[1], kk = (nibbles[2] << 4) | (nibbles[3]);
 
   machine->registers[vx] += kk;
   machine->pc += 2;
 }
 
 void
-nop (Machine *machine, byte nibbles[4])
+nop (Machine *machine, word nibbles[4])
 {
   machine->pc += 2;
 }

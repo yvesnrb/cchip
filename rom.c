@@ -7,7 +7,7 @@ void
 load_rom (Machine *machine, char filename[])
 {
   FILE* file = fopen (filename, "rb");
-  byte *buffer;
+  word *buffer;
   unsigned long length;
 
   if (!file)
@@ -26,7 +26,7 @@ load_rom (Machine *machine, char filename[])
       exit (EXIT_FAILURE);
     }
 
-  buffer = (byte*) malloc (length * sizeof (byte));
+  buffer = (word*) malloc (length * sizeof (word));
 
   if (!buffer)
     {

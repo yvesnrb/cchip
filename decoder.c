@@ -2,7 +2,7 @@
 #include "decoder.h"
 #include "machine.h"
 
-byte
+word
 char_to_hex (char c)
 {
   switch (c)
@@ -61,7 +61,7 @@ char_to_hex (char c)
 }
 
 void
-split_nibbles (byte nibbles[4], byte high, byte low)
+split_nibbles (word nibbles[4], word high, word low)
 {
   nibbles[0] = (high & 0b0000000011110000) >> 4;
   nibbles[1] = (high & 0b0000000000001111);
@@ -70,9 +70,9 @@ split_nibbles (byte nibbles[4], byte high, byte low)
 }
 
 bool
-matches_op (char pattern[5], byte high, byte low)
+matches_op (char pattern[5], word high, word low)
 {
-  byte pattern_nibbles[4], nibbles[4];
+  word pattern_nibbles[4], nibbles[4];
   split_nibbles (nibbles, high, low);
 
   for (int i = 0; pattern[i] != '\0'; i++)

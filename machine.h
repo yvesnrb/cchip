@@ -14,15 +14,15 @@
 
 typedef struct Machine Machine;
 typedef unsigned short address;
-typedef unsigned char byte;
+typedef unsigned char word;
 
 struct Machine
 {
-  byte memory[4096];
-  byte registers[16];
-  byte delay;
-  byte sound;
-  byte sp;
+  word memory[4096];
+  word registers[16];
+  word delay;
+  word sound;
+  word sp;
   address i;
   address pc;
   address stack[16];

@@ -3,7 +3,7 @@
 #include "debug.h"
 
 char
-printable_char (byte c)
+printable_char (char c)
 {
   if (c >= ASCII_PRINTABLE_START && c <= ASCII_PRINTABLE_END)
     return c;
@@ -12,7 +12,7 @@ printable_char (byte c)
 }
 
 void
-hex_print (byte *bytes, address start, address end)
+hex_print (word *bytes, address start, address end)
 {
   unsigned int byte_count = end - start + 1,
     line_count = (byte_count + (HEXP_LINE_LENGTH - 1)) / HEXP_LINE_LENGTH;
