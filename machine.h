@@ -11,6 +11,9 @@
 #define DISPLAY_LINES 32
 #define DISPLAY_COLUMNS 64
 #define SPRITE_WIDTH 8
+#define STACK_SIZE 16
+#define ADDRESS_MAX 0xFFF
+#define WORD_MAX 0xFF
 
 typedef struct Machine Machine;
 typedef unsigned short address;
@@ -22,10 +25,10 @@ struct Machine
   word registers[16];
   word delay;
   word sound;
-  word sp;
+  signed char sp;
   address i;
   address pc;
-  address stack[16];
+  address stack[STACK_SIZE];
   bool display[DISPLAY_LINES][DISPLAY_COLUMNS];
 };
 

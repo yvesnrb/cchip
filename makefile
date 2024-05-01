@@ -1,4 +1,4 @@
-sources := main.c rom.c debug.c decoder.c machine.c ops.c sdl.c args.c
+sources := main.c rom.c debug.c decoder.c machine.c ops.c sdl.c args.c stack.c
 libs := $(shell pkg-config --libs --cflags SDL2)
 
 chip: $(sources)

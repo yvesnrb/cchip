@@ -1,6 +1,8 @@
+#include <limits.h>
 #include <stdbool.h>
 #include "ops.h"
 #include "machine.h"
+#include "stack.h"
 
 void
 cls (Machine *machine, word nibbles[4])
@@ -13,11 +15,63 @@ cls (Machine *machine, word nibbles[4])
 }
 
 void
+ret (Machine *machine, word nibbles[4])
+{
+  machine->pc = stack_pop (machine->stack, &machine->sp);
+  machine->pc += 2;
+}
+
+void
 jp_addr (Machine *machine, word nibbles[4])
 {
-  unsigned short nnn = (nibbles[1] << 8) | (nibbles[2] << 4) | nibbles[3];
+  address nnn = (nibbles[1] << 8) | (nibbles[2] << 4) | nibbles[3];
 
   machine->pc = nnn;
+}
+
+void
+call_addr (Machine *machine, word nibbles[4])
+{
+  address nnn = (nibbles[1] << 8) | (nibbles[2] << 4) | nibbles[3];
+
+  stack_push (machine->stack, &machine->sp, machine->pc);
+  machine->pc = nnn;
+}
+
+void
+se_vx_byte (Machine *machine, word nibbles[4])
+{
+  word vx = nibbles[1], kk = (nibbles[2] << 4) | (nibbles[3]),
+    vx_v = machine->registers[vx];
+
+  if (vx_v == kk)
+    machine->pc += 4;
+  else
+    machine->pc += 2;
+}
+
+void
+sne_vx_byte (Machine *machine, word nibbles[4])
+{
+  word vx = nibbles[1], kk = (nibbles[2] << 4) | (nibbles[3]),
+    vx_v = machine->registers[vx];
+
+  if (vx_v != kk)
+    machine->pc += 4;
+  else
+    machine->pc += 2;
+}
+
+void
+se_vx_vy (Machine *machine, word nibbles[4])
+{
+  word vx = nibbles[1], vy = nibbles[2], vx_v = machine->registers[vx],
+    vy_v = machine->registers[vy];
+
+  if (vx_v == vy_v)
+    machine->pc += 4;
+  else
+    machine->pc += 2;
 }
 
 void
@@ -27,6 +81,142 @@ ld_vx_byte (Machine *machine, word nibbles[4])
 
   machine->registers[vx] = kk;
   machine->pc += 2;
+}
+
+void
+add_vx_byte (Machine *machine, word nibbles[4])
+{
+  word vx = nibbles[1], kk = (nibbles[2] << 4) | (nibbles[3]);
+
+  machine->registers[vx] += kk;
+  machine->pc += 2;
+}
+
+void
+ld_vx_vy (Machine *machine, word nibbles[4])
+{
+  word vx = nibbles[1], vy = nibbles[2];
+
+  machine->registers[vx] = machine->registers[vy];
+  machine->pc += 2;
+}
+
+void
+or_vx_vy (Machine *machine, word nibbles[4])
+{
+  word vx = nibbles[1], vy = nibbles[2], vx_v = machine->registers[vx],
+    vy_v = machine->registers[vy], or;
+
+  or = vx_v | vy_v;
+  machine->registers[vx] = or;
+  machine->pc += 2;
+}
+
+void
+and_vx_vy (Machine *machine, word nibbles[4])
+{
+  word vx = nibbles[1], vy = nibbles[2], vx_v = machine->registers[vx],
+    vy_v = machine->registers[vy], or;
+
+  or = vx_v & vy_v;
+  machine->registers[vx] = or;
+  machine->pc += 2;
+}
+
+void
+xor_vx_vy (Machine *machine, word nibbles[4])
+{
+  word vx = nibbles[1], vy = nibbles[2], vx_v = machine->registers[vx],
+    vy_v = machine->registers[vy], or;
+
+  or = vx_v ^ vy_v;
+  machine->registers[vx] = or;
+  machine->pc += 2;
+}
+
+void
+add_vx_vy (Machine *machine, word nibbles[4])
+{
+  word vx = nibbles[1], vy = nibbles[2], vx_v = machine->registers[vx],
+    vy_v = machine->registers[vy];
+  unsigned short sum = vx_v + vy_v;
+
+  if (sum > WORD_MAX)
+    machine->registers[0xF] = 1;
+  else
+    machine->registers[0xF] = 0;
+
+  machine->registers[vx] = (word) sum;
+  machine->pc += 2;
+}
+
+void
+sub_vx_vy (Machine *machine, word nibbles[4])
+{
+  word vx = nibbles[1], vy = nibbles[2], vx_v = machine->registers[vx],
+    vy_v = machine->registers[vy];
+
+  if (vx_v > vy_v)
+    machine->registers[0xF] = 1;
+  else
+    machine->registers[0xF] = 0;
+
+  machine->registers[vx] = vx_v - vy_v;
+  machine->pc += 2;
+}
+
+void
+shr_vx_vy (Machine *machine, word nibbles[4])
+{
+  word vx = nibbles[1], vx_v = machine->registers[vx];
+    
+  if (vx_v & 0x00000001)
+    machine->registers[0xF] = 1;
+  else
+    machine->registers[0xF] = 0;
+
+  machine->registers[vx] = vx_v >> 1;
+  machine->pc += 2;
+}
+
+void
+subn_vx_vy (Machine *machine, word nibbles[4])
+{
+  word vx = nibbles[1], vy = nibbles[2], vx_v = machine->registers[vx],
+    vy_v = machine->registers[vy];
+
+  if (vy_v > vx_v)
+    machine->registers[0xF] = 1;
+  else
+    machine->registers[0xF] = 0;
+
+  machine->registers[vx] = vy_v - vx_v;
+  machine->pc += 2;
+}
+
+void
+shl_vx_vy (Machine *machine, word nibbles[4])
+{
+  word vx = nibbles[1], vx_v = machine->registers[vx];
+    
+  if (vx_v & 0x10000000)
+    machine->registers[0xF] = 1;
+  else
+    machine->registers[0xF] = 0;
+
+  machine->registers[vx] = vx_v << 1;
+  machine->pc += 2;
+}
+
+void sne_vx_vy (Machine *machine, word nibbles[4])
+{
+  word vx = nibbles[1], vy = nibbles[2], vx_v = machine->registers[vx],
+    vy_v = machine->registers[vy];
+
+  if (vx_v != vy_v)
+    machine->pc += 4;
+  else
+    machine->pc += 2;
 }
 
 void
@@ -68,11 +258,56 @@ drw_vx_vy_nibble (Machine *machine, word nibbles[4])
 }
 
 void
-add_vx_byte (Machine *machine, word nibbles[4])
+add_i_vx (Machine *machine, word nibbles[4])
 {
-  word vx = nibbles[1], kk = (nibbles[2] << 4) | (nibbles[3]);
+  word vx = nibbles[1], vx_v = machine->registers[vx];
 
-  machine->registers[vx] += kk;
+  machine->i += vx_v;
+  machine->pc += 2;
+}
+
+void
+ld_b_vx (Machine *machine, word nibbles[4])
+{
+  word vx = nibbles[1], vx_v = machine->registers[vx], hundreds, tens,
+    ones;
+  address i = machine->i;
+
+  hundreds = (vx_v / 100) % 10;
+  tens = (vx_v / 10) % 10;
+  ones = vx_v % 10;
+  
+  machine->memory[i] = hundreds;
+  machine->memory[i + 1] = tens;
+  machine->memory[i + 2] = ones;
+  machine->pc += 2;
+}
+
+void
+ld_i_vx (Machine *machine, word nibbles[4])
+{
+  word x = nibbles[1];
+  address addr = machine->i;
+
+  for (word i = 0; i <= x; i++, addr++)
+    {
+      machine->memory[addr] = machine->registers[i];
+    }
+
+  machine->pc += 2;
+}
+
+void
+ld_vx_i (Machine *machine, word nibbles[4])
+{
+  word x = nibbles[1];
+  address addr = machine->i;
+
+  for (word i = 0; i <= x; i++, addr++)
+    {
+      machine->registers[i] = machine->memory[addr];
+    }
+
   machine->pc += 2;
 }
 

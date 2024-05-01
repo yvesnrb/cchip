@@ -67,7 +67,7 @@ sdl_loop (Machine *machine, SDL_Renderer *renderer)
     {
       step (machine);
       sdl_render (renderer, machine);
-      SDL_Delay (250);
+      /* SDL_Delay (250); */
 
       while (SDL_PollEvent(&e))
 	{
