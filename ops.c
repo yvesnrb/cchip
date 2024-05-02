@@ -141,12 +141,13 @@ add_vx_vy (Machine *machine, word nibbles[4])
     vy_v = machine->registers[vy];
   unsigned short sum = vx_v + vy_v;
 
+  machine->registers[vx] = (word) sum;
+
   if (sum > WORD_MAX)
     machine->registers[0xF] = 1;
   else
     machine->registers[0xF] = 0;
 
-  machine->registers[vx] = (word) sum;
   machine->pc += 2;
 }
 
@@ -156,12 +157,13 @@ sub_vx_vy (Machine *machine, word nibbles[4])
   word vx = nibbles[1], vy = nibbles[2], vx_v = machine->registers[vx],
     vy_v = machine->registers[vy];
 
-  if (vx_v > vy_v)
+  machine->registers[vx] = vx_v - vy_v;
+
+  if (vx_v >= vy_v)
     machine->registers[0xF] = 1;
   else
     machine->registers[0xF] = 0;
 
-  machine->registers[vx] = vx_v - vy_v;
   machine->pc += 2;
 }
 
@@ -170,12 +172,13 @@ shr_vx_vy (Machine *machine, word nibbles[4])
 {
   word vx = nibbles[1], vx_v = machine->registers[vx];
     
-  if (vx_v & 0x00000001)
+  machine->registers[vx] = vx_v >> 1;
+
+  if (vx_v & 0b00000001)
     machine->registers[0xF] = 1;
   else
     machine->registers[0xF] = 0;
 
-  machine->registers[vx] = vx_v >> 1;
   machine->pc += 2;
 }
 
@@ -185,12 +188,13 @@ subn_vx_vy (Machine *machine, word nibbles[4])
   word vx = nibbles[1], vy = nibbles[2], vx_v = machine->registers[vx],
     vy_v = machine->registers[vy];
 
-  if (vy_v > vx_v)
+  machine->registers[vx] = vy_v - vx_v;
+
+  if (vy_v >= vx_v)
     machine->registers[0xF] = 1;
   else
     machine->registers[0xF] = 0;
 
-  machine->registers[vx] = vy_v - vx_v;
   machine->pc += 2;
 }
 
@@ -199,12 +203,13 @@ shl_vx_vy (Machine *machine, word nibbles[4])
 {
   word vx = nibbles[1], vx_v = machine->registers[vx];
     
-  if (vx_v & 0x10000000)
+  machine->registers[vx] = vx_v << 1;
+
+  if (vx_v & 0b10000000)
     machine->registers[0xF] = 1;
   else
     machine->registers[0xF] = 0;
 
-  machine->registers[vx] = vx_v << 1;
   machine->pc += 2;
 }
 
