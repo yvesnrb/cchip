@@ -35,6 +35,11 @@ struct Machine
 /* Take a machine `machine` and do the necessary operations to
    complete one clock cycle.
  */
-void step (Machine* machine);
+void machine_step (Machine* machine);
+
+/* Take a machine `machine` and do the necessary operations to
+   decrement all timers.
+ */
+void machine_step_timers (Machine* machine);
 
 #endif

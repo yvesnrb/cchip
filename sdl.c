@@ -1,5 +1,6 @@
 #include <stdbool.h>
 #include <SDL2/SDL.h>
+#include <time.h>
 #include "machine.h"
 #include "sdl.h"
 
@@ -9,7 +10,7 @@ sdl_setup (int scaling_factor)
   SDL_Window *window = NULL;
   SDL_Renderer *renderer = NULL;
 
-  if (SDL_Init(SDL_INIT_VIDEO) != 0)
+  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0)
     {
       perror ("could not initialize SDL");
       exit (EXIT_FAILURE);
@@ -57,17 +58,44 @@ sdl_render (SDL_Renderer *renderer, Machine *machine)
   SDL_RenderPresent (renderer);
 }
 
+uint64_t
+current_ns_time ()
+{
+  uint64_t time = 0;
+  struct timespec tp;
+
+  clock_gettime (CLOCK_MONOTONIC, &tp);
+  time += tp.tv_sec * 1000000000;
+  time += tp.tv_nsec;
+
+  return time;
+}
+
 void
 sdl_loop (Machine *machine, SDL_Renderer *renderer)
 {
   SDL_Event e;
   bool quit = false;
+  uint64_t last_machine_step = 0, last_timer_decrement = 0,
+    current_time;
 
   while (!quit)
     {
-      step (machine);
+      current_time = current_ns_time ();
+
+      if (current_time >= (last_machine_step + 2000000))
+	{
+	  machine_step (machine);
+	  last_machine_step = current_time;
+	}
+
+      if (current_time >= (last_timer_decrement + 16666666))
+	{
+	  machine_step_timers (machine);
+	  last_timer_decrement = current_time;
+	}
+
       sdl_render (renderer, machine);
-      /* SDL_Delay (250); */
 
       while (SDL_PollEvent(&e))
 	{

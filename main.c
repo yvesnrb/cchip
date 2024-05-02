@@ -1,4 +1,6 @@
 #include <SDL2/SDL.h>
+#include <time.h>
+#include <stdlib.h>
 #include "args.h"
 #include "machine.h"
 #include "rom.h"
@@ -24,6 +26,7 @@ main (int argc, char **argv)
       exit (EXIT_FAILURE);
     }
 
+  srand (time (NULL));
   load_rom (machine, rom_path);
   renderer = sdl_setup (scaling);
   sdl_loop (machine, renderer);

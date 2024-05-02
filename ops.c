@@ -1,5 +1,6 @@
 #include <limits.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "ops.h"
 #include "machine.h"
 #include "stack.h"
@@ -227,9 +228,28 @@ void sne_vx_vy (Machine *machine, word nibbles[4])
 void
 ld_i_addr (Machine *machine, word nibbles[4])
 {
-  unsigned short nnn = (nibbles[1] << 8) | (nibbles[2] << 4) | nibbles[3];
+  address nnn = (nibbles[1] << 8) | (nibbles[2] << 4) | nibbles[3];
 
   machine->i = nnn;
+  machine->pc += 2;
+}
+
+void
+jp_v0_addr (Machine *machine, word nibbles[4])
+{
+  word v0_v = machine->registers[0x0];
+  address nnn = (nibbles[1] << 8) | (nibbles[2] << 4) | nibbles[3];
+
+  machine->pc = nnn + v0_v;
+}
+
+void
+rnd_vx_byte (Machine *machine, word nibbles[4])
+{
+  word vx = nibbles[1], kk = (nibbles[2] << 4) | (nibbles[3]),
+    rnd = rand () % 256;
+
+  machine->registers[vx] = rnd & kk;
   machine->pc += 2;
 }
 
@@ -259,6 +279,38 @@ drw_vx_vy_nibble (Machine *machine, word nibbles[4])
     }
 
   machine->registers[0xF] = collision;
+  machine->pc += 2;
+}
+
+void
+sknp_vx (Machine *machine, word nibbles[4])
+{
+  machine->pc += 4;
+}
+
+void
+ld_vx_dt (Machine *machine, word nibbles[4])
+{
+  word vx = nibbles[1];
+
+  machine->registers[vx] = machine->delay;
+  machine->pc += 2;
+}
+
+void
+ld_dt_vx (Machine *machine, word nibbles[4])
+{
+  word vx = nibbles[1];
+
+  machine->delay = machine->registers[vx];
+  machine->pc += 2;
+}
+
+void ld_st_vx (Machine *machine, word nibbles[4])
+{
+  word vx = nibbles[1];
+
+  machine->sound = machine->registers[vx];
   machine->pc += 2;
 }
 

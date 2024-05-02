@@ -3,7 +3,7 @@
 #include "ops.h"
 
 void
-step (Machine *machine)
+machine_step (Machine *machine)
 {
   word high = machine->memory[machine->pc],
     low = machine->memory[machine->pc + 1], nibbles[4];
@@ -48,8 +48,20 @@ step (Machine *machine)
     sne_vx_vy (machine, nibbles);
   else if (matches_op ("Annn", high, low))
     ld_i_addr (machine, nibbles);
+  else if (matches_op ("Bnnn", high, low))
+    jp_v0_addr (machine, nibbles);
+  else if (matches_op ("Cxkk", high, low))
+    rnd_vx_byte (machine, nibbles);
   else if (matches_op ("Dxyn", high, low))
     drw_vx_vy_nibble (machine, nibbles);
+  else if (matches_op ("ExA1", high, low))
+    sknp_vx (machine, nibbles);
+  else if (matches_op ("Fx07", high, low))
+    ld_vx_dt (machine, nibbles);
+  else if (matches_op ("Fx15", high, low))
+    ld_dt_vx (machine, nibbles);
+  else if (matches_op ("Fx18", high, low))
+    ld_st_vx (machine, nibbles);
   else if (matches_op ("Fx1E", high, low))
     add_i_vx (machine, nibbles);
   else if (matches_op ("Fx33", high, low))
@@ -62,4 +74,14 @@ step (Machine *machine)
     nop (machine, nibbles);
 
   /* TODO protect pc out of bounds */
+}
+
+void
+machine_step_timers (Machine* machine)
+{
+  if (machine->delay > 0)
+    machine->delay--;
+    
+  if (machine->sound > 0)
+    machine->sound--;
 }
