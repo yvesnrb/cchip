@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <limits.h>
 #include <stdbool.h>
 #include <stdlib.h>
@@ -214,7 +215,8 @@ shl_vx_vy (Machine *machine, word nibbles[4])
   machine->pc += 2;
 }
 
-void sne_vx_vy (Machine *machine, word nibbles[4])
+void
+sne_vx_vy (Machine *machine, word nibbles[4])
 {
   word vx = nibbles[1], vy = nibbles[2], vx_v = machine->registers[vx],
     vy_v = machine->registers[vy];
@@ -283,9 +285,25 @@ drw_vx_vy_nibble (Machine *machine, word nibbles[4])
 }
 
 void
+skp_vx (Machine *machine, word nibbles[4])
+{
+  word vx = nibbles[1], vx_v = machine->registers[vx];
+
+  if (machine->keypad[vx_v])
+    machine->pc += 4;
+  else
+    machine->pc += 2;
+}
+
+void
 sknp_vx (Machine *machine, word nibbles[4])
 {
-  machine->pc += 4;
+  word vx = nibbles[1], vx_v = machine->registers[vx];  
+
+  if (machine->keypad[vx_v])
+    machine->pc += 2;
+  else
+    machine->pc += 4;
 }
 
 void
@@ -298,6 +316,28 @@ ld_vx_dt (Machine *machine, word nibbles[4])
 }
 
 void
+ld_vx_k (Machine *machine, word nibbles[4])
+{
+  word vx = nibbles[1], key;
+  bool anykey;
+
+  for (int i = 0; i <= 16; i++)
+    {
+      if (machine->keypad[i])
+	{
+	  anykey = machine->keypad[i];
+	  key = i;
+	}
+    }
+
+  if (anykey)
+    {
+      machine->registers[vx] = key;
+      machine->pc += 2;
+    }
+}
+
+void
 ld_dt_vx (Machine *machine, word nibbles[4])
 {
   word vx = nibbles[1];
@@ -306,7 +346,8 @@ ld_dt_vx (Machine *machine, word nibbles[4])
   machine->pc += 2;
 }
 
-void ld_st_vx (Machine *machine, word nibbles[4])
+void
+ld_st_vx (Machine *machine, word nibbles[4])
 {
   word vx = nibbles[1];
 

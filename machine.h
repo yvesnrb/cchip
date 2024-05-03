@@ -32,6 +32,7 @@ struct Machine
   address pc;
   address stack[STACK_SIZE];
   bool display[DISPLAY_LINES][DISPLAY_COLUMNS];
+  bool keypad[16];
 };
 
 /* Take a machine `machine` and reset all fields to their initial

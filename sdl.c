@@ -10,7 +10,7 @@ sdl_setup (int scaling_factor)
   SDL_Window *window = NULL;
   SDL_Renderer *renderer = NULL;
 
-  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0)
+  if (SDL_Init(SDL_INIT_VIDEO) != 0)
     {
       perror ("could not initialize SDL");
       exit (EXIT_FAILURE);
@@ -72,9 +72,36 @@ current_ns_time ()
 }
 
 void
-sdl_loop (Machine *machine, SDL_Renderer *renderer)
+poll_event (bool *quit, Machine *machine)
 {
   SDL_Event e;
+  const Uint8 *keystates;
+
+  SDL_PumpEvents ();
+  keystates = SDL_GetKeyboardState (NULL);
+
+  for (int i = 0; i <= 16; i++)
+    if (keystates[SDL_GetScancodeFromKey (keymap[i])])
+      machine->keypad[i] = true;
+    else
+      machine->keypad[i] = false;
+  
+  while (SDL_PollEvent(&e))
+    {
+      switch (e.type)
+	{
+	case SDL_QUIT:
+	  *quit = true;
+	  break;
+	default:
+	  break;
+	}
+    }
+}
+
+void
+sdl_loop (Machine *machine, SDL_Renderer *renderer)
+{
   bool quit = false;
   uint64_t last_machine_step = 0, last_timer_decrement = 0,
     current_time;
@@ -82,7 +109,7 @@ sdl_loop (Machine *machine, SDL_Renderer *renderer)
   while (!quit)
     {
       current_time = current_ns_time ();
-
+      
       if (current_time >= (last_machine_step + 2000000))
 	{
 	  machine_step (machine);
@@ -95,15 +122,8 @@ sdl_loop (Machine *machine, SDL_Renderer *renderer)
 	  last_timer_decrement = current_time;
 	}
 
+      poll_event (&quit, machine);
       sdl_render (renderer, machine);
-
-      while (SDL_PollEvent(&e))
-	{
-	  if (e.type == SDL_QUIT)
-	    {
-	      quit = true;
-	    }
-	}
     }
 
   SDL_Quit ();

@@ -83,10 +83,14 @@ machine_step (Machine *machine)
     rnd_vx_byte (machine, nibbles);
   else if (matches_op ("Dxyn", high, low))
     drw_vx_vy_nibble (machine, nibbles);
+  else if (matches_op ("Ex9E", high, low))
+    skp_vx (machine, nibbles);
   else if (matches_op ("ExA1", high, low))
     sknp_vx (machine, nibbles);
   else if (matches_op ("Fx07", high, low))
     ld_vx_dt (machine, nibbles);
+  else if (matches_op ("Fx0A", high, low))
+    ld_vx_k (machine, nibbles);
   else if (matches_op ("Fx15", high, low))
     ld_dt_vx (machine, nibbles);
   else if (matches_op ("Fx18", high, low))
