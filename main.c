@@ -18,7 +18,6 @@ main (int argc, char **argv)
   arg_parse (argc, argv, &scaling, rom_path);
 
   machine = (Machine*) malloc (sizeof (Machine));
-  machine->sp = -1;
 
   if (!machine)
     {
@@ -28,6 +27,7 @@ main (int argc, char **argv)
 
   srand (time (NULL));
   load_rom (machine, rom_path);
+  machine_reset (machine);
   renderer = sdl_setup (scaling);
   sdl_loop (machine, renderer);
 

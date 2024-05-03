@@ -39,8 +39,6 @@ load_rom (Machine *machine, char filename[])
   for (address i = PROGRAM_START, j = 0; j < length; i++, j++)
     machine->memory[i] = buffer[j];
 
-  machine->pc = PROGRAM_START;
-
   fclose (file);
   free (buffer);
 }

@@ -8,12 +8,14 @@
 
 #define MAX_PROGRAM_LENGTH 3584
 #define PROGRAM_START 0x200
+#define SP_START -1
 #define DISPLAY_LINES 32
 #define DISPLAY_COLUMNS 64
 #define SPRITE_WIDTH 8
 #define STACK_SIZE 16
 #define ADDRESS_MAX 0xFFF
 #define WORD_MAX 0xFF
+#define FONT_SPRITE_LENGTH 5
 
 typedef struct Machine Machine;
 typedef unsigned short address;
@@ -32,14 +34,18 @@ struct Machine
   bool display[DISPLAY_LINES][DISPLAY_COLUMNS];
 };
 
+/* Take a machine `machine` and reset all fields to their initial
+   values. */
+void machine_reset (Machine *machine);
+
 /* Take a machine `machine` and do the necessary operations to
    complete one clock cycle.
  */
-void machine_step (Machine* machine);
+void machine_step (Machine *machine);
 
 /* Take a machine `machine` and do the necessary operations to
    decrement all timers.
  */
-void machine_step_timers (Machine* machine);
+void machine_step_timers (Machine *machine);
 
 #endif

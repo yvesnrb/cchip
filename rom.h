@@ -5,8 +5,7 @@
 #include "machine.h"
 
 /* Find a ROM file by the path `filename` and load it into the
-   `machine` starting at PROGRAM_START. The program counter of
-   `machine` is also set to PROGRAM_START.
+   `machine` starting at PROGRAM_START.
  */
 void load_rom (Machine *machine, char filename[]);
 

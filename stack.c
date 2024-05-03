@@ -7,7 +7,7 @@
 bool
 is_empty (signed char sp)
 {
-  if (sp == -1)
+  if (sp == SP_START)
     return true;
   else
     return false;
