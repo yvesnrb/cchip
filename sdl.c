@@ -1,6 +1,7 @@
 #include <stdbool.h>
 #include <SDL2/SDL.h>
 #include <time.h>
+#include "SDL_events.h"
 #include "machine.h"
 #include "sdl.h"
 
@@ -87,7 +88,14 @@ poll_event (bool *quit, Machine *machine)
       machine->keypad[i] = false;
   
   while (SDL_PollEvent(&e))
-    if (e.type == SDL_QUIT) *quit = true;
+    {
+      if (e.type == SDL_QUIT) *quit = true;
+      if (e.type == SDL_KEYUP)
+	for (int i = 0; i < 16; i++)
+	  if (keymap[i] == e.key.keysym.sym)
+            machine_keyboard_interrupt (machine, i);
+    }
+    
 }
 
 void

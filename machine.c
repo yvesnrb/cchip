@@ -133,3 +133,12 @@ machine_display_interrupt (Machine *machine)
   if (machine->state == MACHINE_WAITING_DSP_INTERRUPT)
     machine->state = MACHINE_RUNNING;
 }
+
+void
+machine_keyboard_interrupt (Machine *machine, word key_up)
+{
+  if (machine->state != MACHINE_WAITING_KB_INTERRUPT) return;
+
+  machine->registers[machine->key_register] = key_up;
+  machine->state = MACHINE_RUNNING;
+}

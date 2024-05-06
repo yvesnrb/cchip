@@ -322,23 +322,11 @@ ld_vx_dt (Machine *machine, word nibbles[4])
 void
 ld_vx_k (Machine *machine, word nibbles[4])
 {
-  word vx = nibbles[1], key;
-  bool anykey;
+  word vx = nibbles[1];
 
-  for (int i = 0; i < 16; i++)
-    {
-      if (machine->keypad[i])
-	{
-	  anykey = machine->keypad[i];
-	  key = i;
-	}
-    }
-
-  if (anykey)
-    {
-      machine->registers[vx] = key;
-      machine->pc += 2;
-    }
+  machine->key_register = vx;
+  machine->state = MACHINE_WAITING_KB_INTERRUPT;
+  machine->pc += 2;
 }
 
 void

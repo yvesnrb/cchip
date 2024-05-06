@@ -29,7 +29,9 @@ enum machine_state {
   MACHINE_RUNNING,
   /* The machine is waiting for the display to refresh before
      continuing. */
-  MACHINE_WAITING_DSP_INTERRUPT
+  MACHINE_WAITING_DSP_INTERRUPT,
+  /* The machine is waiting for a key up event before continuing. */
+  MACHINE_WAITING_KB_INTERRUPT
 };
 
 struct Machine
@@ -38,6 +40,7 @@ struct Machine
   word registers[16];
   word delay;
   word sound;
+  word key_register;
   signed char sp;
   address i;
   address pc;
@@ -65,5 +68,10 @@ void machine_step_timers (Machine *machine);
    a display interrupt.
  */
 void machine_display_interrupt (Machine *machine);
+
+/* Take a machine `machine` and a key code `key_up` and do the
+   necessary operations to handle a keyboard interrupt.
+ */
+void machine_keyboard_interrupt (Machine *machine, word key_up);
 
 #endif
