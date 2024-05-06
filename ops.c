@@ -371,8 +371,8 @@ add_i_vx (Machine *machine, word nibbles[4])
 void
 ld_f_vx (Machine *machine, word nibbles[4])
 {
-  word x = nibbles[1];
-  address font_adr = x * FONT_SPRITE_LENGTH;
+  word vx = nibbles[1], vx_v = machine->registers[vx];
+  address font_adr = vx_v * FONT_SPRITE_LENGTH;
 
   machine->i = font_adr;
   machine->pc += 2;
