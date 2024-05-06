@@ -18,8 +18,19 @@
 #define FONT_SPRITE_LENGTH 5
 
 typedef struct Machine Machine;
+typedef enum machine_state machine_state;
 typedef unsigned short address;
 typedef unsigned char word;
+
+enum machine_state {
+  /* The machine has finished operation. */
+  MACHINE_HALTED,
+  /* The machine is currently executing. */
+  MACHINE_RUNNING,
+  /* The machine is waiting for the display to refresh before
+     continuing. */
+  MACHINE_WAITING_DSP_INTERRUPT
+};
 
 struct Machine
 {
@@ -33,6 +44,7 @@ struct Machine
   address stack[STACK_SIZE];
   bool display[DISPLAY_LINES][DISPLAY_COLUMNS];
   bool keypad[16];
+  machine_state state;
 };
 
 /* Take a machine `machine` and reset all fields to their initial
@@ -48,5 +60,10 @@ void machine_step (Machine *machine);
    decrement all timers.
  */
 void machine_step_timers (Machine *machine);
+
+/* Take a machine `machine` and do the necessary operations to handle
+   a display interrupt.
+ */
+void machine_display_interrupt (Machine *machine);
 
 #endif

@@ -111,6 +111,7 @@ or_vx_vy (Machine *machine, word nibbles[4])
 
   or = vx_v | vy_v;
   machine->registers[vx] = or;
+  machine->registers[0xF] = 0;
   machine->pc += 2;
 }
 
@@ -118,10 +119,11 @@ void
 and_vx_vy (Machine *machine, word nibbles[4])
 {
   word vx = nibbles[1], vy = nibbles[2], vx_v = machine->registers[vx],
-    vy_v = machine->registers[vy], or;
+    vy_v = machine->registers[vy], and;
 
-  or = vx_v & vy_v;
-  machine->registers[vx] = or;
+  and = vx_v & vy_v;
+  machine->registers[vx] = and;
+  machine->registers[0xF] = 0;
   machine->pc += 2;
 }
 
@@ -129,10 +131,11 @@ void
 xor_vx_vy (Machine *machine, word nibbles[4])
 {
   word vx = nibbles[1], vy = nibbles[2], vx_v = machine->registers[vx],
-    vy_v = machine->registers[vy], or;
+    vy_v = machine->registers[vy], xor;
 
-  or = vx_v ^ vy_v;
-  machine->registers[vx] = or;
+  xor = vx_v ^ vy_v;
+  machine->registers[vx] = xor;
+  machine->registers[0xF] = 0;
   machine->pc += 2;
 }
 
@@ -172,11 +175,11 @@ sub_vx_vy (Machine *machine, word nibbles[4])
 void
 shr_vx_vy (Machine *machine, word nibbles[4])
 {
-  word vx = nibbles[1], vx_v = machine->registers[vx];
+  word vx = nibbles[1], vy = nibbles[2], vy_v = machine->registers[vy];
     
-  machine->registers[vx] = vx_v >> 1;
+  machine->registers[vx] = vy_v >> 1;
 
-  if (vx_v & 0b00000001)
+  if (vy_v & 0b00000001)
     machine->registers[0xF] = 1;
   else
     machine->registers[0xF] = 0;
@@ -203,11 +206,11 @@ subn_vx_vy (Machine *machine, word nibbles[4])
 void
 shl_vx_vy (Machine *machine, word nibbles[4])
 {
-  word vx = nibbles[1], vx_v = machine->registers[vx];
+  word vx = nibbles[1], vy = nibbles[2], vy_v = machine->registers[vy];
     
-  machine->registers[vx] = vx_v << 1;
+  machine->registers[vx] = vy_v << 1;
 
-  if (vx_v & 0b10000000)
+  if (vy_v & 0b10000000)
     machine->registers[0xF] = 1;
   else
     machine->registers[0xF] = 0;
@@ -259,29 +262,30 @@ void
 drw_vx_vy_nibble (Machine *machine, word nibbles[4])
 {
   word vx = nibbles[1], vy = nibbles[2], n = nibbles[3],
-    x = machine->registers[vx], y = machine->registers[vy], sprite_byte;
+    x = machine->registers[vx] % DISPLAY_COLUMNS,
+    y = machine->registers[vy] % DISPLAY_LINES;
   address sprite_start = machine->i, sprite_end = machine->i + n;
-  bool sprite_pixel, collision = false;
+  bool pixel, collision = false;
 
   for (address i = sprite_start; i < sprite_end; i++)
     {
-      sprite_byte = machine->memory[i];
+      if (y >= DISPLAY_LINES) break;
 
       for (int j = 0; j < SPRITE_WIDTH; j++)
 	{
-	  sprite_pixel = (sprite_byte & (0b10000000 >> j)) != 0;
+	  if ((x + j) >= DISPLAY_COLUMNS) break;
+	  pixel = (machine->memory[i] & (0b10000000 >> j)) != 0;
 
-	  if (machine->display[y][x + j] && sprite_pixel)
-	    collision = true;
-
-	  machine->display[y][x + j] ^= sprite_pixel;
+	  if (machine->display[y][x + j] && pixel) collision = true;
+	  machine->display[y][x + j] ^= pixel;
 	}
 
-      if (y < DISPLAY_LINES) y++;
+      y++;
     }
 
   machine->registers[0xF] = collision;
   machine->pc += 2;
+  machine->state = MACHINE_WAITING_DSP_INTERRUPT;
 }
 
 void
@@ -321,7 +325,7 @@ ld_vx_k (Machine *machine, word nibbles[4])
   word vx = nibbles[1], key;
   bool anykey;
 
-  for (int i = 0; i <= 16; i++)
+  for (int i = 0; i < 16; i++)
     {
       if (machine->keypad[i])
 	{
@@ -379,15 +383,15 @@ ld_b_vx (Machine *machine, word nibbles[4])
 {
   word vx = nibbles[1], vx_v = machine->registers[vx], hundreds, tens,
     ones;
-  address i = machine->i;
+  address start = machine->i;
 
   hundreds = (vx_v / 100) % 10;
   tens = (vx_v / 10) % 10;
   ones = vx_v % 10;
   
-  machine->memory[i] = hundreds;
-  machine->memory[i + 1] = tens;
-  machine->memory[i + 2] = ones;
+  machine->memory[start] = hundreds;
+  machine->memory[start + 1] = tens;
+  machine->memory[start + 2] = ones;
   machine->pc += 2;
 }
 
@@ -395,11 +399,14 @@ void
 ld_i_vx (Machine *machine, word nibbles[4])
 {
   word x = nibbles[1];
-  address addr = machine->i;
+  address start = machine->i;
+  int i = 0;
 
-  for (word i = 0; i <= x; i++, addr++)
+  while (machine->i <= (start + x))
     {
-      machine->memory[addr] = machine->registers[i];
+      machine->memory[machine->i] = machine->registers[i];
+      i++;
+      machine->i++;
     }
 
   machine->pc += 2;
@@ -409,11 +416,14 @@ void
 ld_vx_i (Machine *machine, word nibbles[4])
 {
   word x = nibbles[1];
-  address addr = machine->i;
+  address start = machine->i;
+  int i = 0;
 
-  for (word i = 0; i <= x; i++, addr++)
+  while (machine->i <= (start + x))
     {
-      machine->registers[i] = machine->memory[addr];
+      machine->registers[i] = machine->memory[machine->i];
+      i++;
+      machine->i++;
     }
 
   machine->pc += 2;

@@ -80,23 +80,14 @@ poll_event (bool *quit, Machine *machine)
   SDL_PumpEvents ();
   keystates = SDL_GetKeyboardState (NULL);
 
-  for (int i = 0; i <= 16; i++)
+  for (int i = 0; i < 16; i++)
     if (keystates[SDL_GetScancodeFromKey (keymap[i])])
       machine->keypad[i] = true;
     else
       machine->keypad[i] = false;
   
   while (SDL_PollEvent(&e))
-    {
-      switch (e.type)
-	{
-	case SDL_QUIT:
-	  *quit = true;
-	  break;
-	default:
-	  break;
-	}
-    }
+    if (e.type == SDL_QUIT) *quit = true;
 }
 
 void
@@ -104,13 +95,13 @@ sdl_loop (Machine *machine, SDL_Renderer *renderer)
 {
   bool quit = false;
   uint64_t last_machine_step = 0, last_timer_decrement = 0,
-    current_time;
+    last_display_interrupt = 0, current_time;
 
   while (!quit)
     {
       current_time = current_ns_time ();
       
-      if (current_time >= (last_machine_step + 2000000))
+      if (current_time >= (last_machine_step + 1000000)) /* 2 = 500Hz */
 	{
 	  machine_step (machine);
 	  last_machine_step = current_time;
@@ -120,6 +111,12 @@ sdl_loop (Machine *machine, SDL_Renderer *renderer)
 	{
 	  machine_step_timers (machine);
 	  last_timer_decrement = current_time;
+	}
+
+      if (current_time >= (last_display_interrupt + 16666666))
+	{
+	  machine_display_interrupt (machine);
+	  last_display_interrupt = current_time;
 	}
 
       poll_event (&quit, machine);

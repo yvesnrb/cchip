@@ -26,6 +26,7 @@ machine_reset (Machine *machine)
 
   machine->sp = SP_START;
   machine->pc = PROGRAM_START;
+  machine->state = MACHINE_RUNNING;
 
   for (int i = 0; i < sizeof (font); i++)
     machine->memory[i] = font[i];
@@ -36,6 +37,9 @@ machine_step (Machine *machine)
 {
   word high = machine->memory[machine->pc],
     low = machine->memory[machine->pc + 1], nibbles[4];
+
+  if (machine->state != MACHINE_RUNNING)
+    return;
 
   split_nibbles (nibbles, high, low);
 
@@ -51,6 +55,8 @@ machine_step (Machine *machine)
     se_vx_byte (machine, nibbles);
   else if (matches_op ("4xkk", high, low))
     sne_vx_byte (machine, nibbles);
+  else if (matches_op ("5xy0", high, low))
+    se_vx_vy (machine, nibbles);
   else if (matches_op ("6xkk", high, low))
     ld_vx_byte (machine, nibbles);
   else if (matches_op ("7xkk", high, low))
@@ -119,4 +125,11 @@ machine_step_timers (Machine* machine)
     
   if (machine->sound > 0)
     machine->sound--;
+}
+
+void
+machine_display_interrupt (Machine *machine)
+{
+  if (machine->state == MACHINE_WAITING_DSP_INTERRUPT)
+    machine->state = MACHINE_RUNNING;
 }
