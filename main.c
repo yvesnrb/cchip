@@ -6,12 +6,14 @@
 #include "rom.h"
 #include "decoder.h"
 #include "sdl.h"
+#include "buzzer.h"
 
 int
 main (int argc, char **argv)
 {
   Machine *machine = NULL;
   SDL_Renderer *renderer = NULL;
+  SDL_AudioSpec *audio_spec = NULL;
   int scaling = 10;
   char rom_path[100];
 
@@ -29,8 +31,10 @@ main (int argc, char **argv)
   load_rom (machine, rom_path);
   machine_reset (machine);
   renderer = sdl_setup (scaling);
+  audio_spec = buzzer_setup ();
   sdl_loop (machine, renderer);
 
+  buzzer_teardown (audio_spec);
   free (machine);
   return EXIT_SUCCESS;
 }

@@ -1,9 +1,9 @@
 #include <stdbool.h>
-#include <SDL2/SDL.h>
 #include <time.h>
-#include "SDL_events.h"
+#include <SDL2/SDL.h>
 #include "machine.h"
 #include "sdl.h"
+#include "buzzer.h"
 
 SDL_Renderer*
 sdl_setup (int scaling_factor)
@@ -11,7 +11,7 @@ sdl_setup (int scaling_factor)
   SDL_Window *window = NULL;
   SDL_Renderer *renderer = NULL;
 
-  if (SDL_Init(SDL_INIT_VIDEO) != 0)
+  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0)
     {
       perror ("could not initialize SDL");
       exit (EXIT_FAILURE);
@@ -109,7 +109,12 @@ sdl_loop (Machine *machine, SDL_Renderer *renderer)
     {
       current_time = current_ns_time ();
       
-      if (current_time >= (last_machine_step + 1000000)) /* 2 = 500Hz */
+      if (machine->sound > 0)
+        buzzer_toggle (true);
+      else
+        buzzer_toggle (false);
+
+      if (current_time >= (last_machine_step + 1000000))
 	{
 	  machine_step (machine);
 	  last_machine_step = current_time;
