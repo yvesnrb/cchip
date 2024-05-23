@@ -1,5 +1,6 @@
 #include "machine.h"
 #include "decoder.h"
+#include "args.h"
 #include "ops.h"
 
 void
@@ -33,7 +34,7 @@ machine_reset (Machine *machine)
 }
 
 void
-machine_step (Machine *machine)
+machine_step (Machine *machine, Options options)
 {
   word high = machine->memory[machine->pc],
     low = machine->memory[machine->pc + 1], nibbles[4];
@@ -64,31 +65,34 @@ machine_step (Machine *machine)
   else if (matches_op ("8xy0", high, low))
     ld_vx_vy (machine, nibbles);
   else if (matches_op ("8xy1", high, low))
-    or_vx_vy (machine, nibbles);
+    or_vx_vy (machine, nibbles, options.vf_reset_on);
   else if (matches_op ("8xy2", high, low))
-    and_vx_vy (machine, nibbles);
+    and_vx_vy (machine, nibbles, options.vf_reset_on);
   else if (matches_op ("8xy3", high, low))
-    xor_vx_vy (machine, nibbles);
+    xor_vx_vy (machine, nibbles, options.vf_reset_on);
   else if (matches_op ("8xy4", high, low))
     add_vx_vy (machine, nibbles);
   else if (matches_op ("8xy5", high, low))
     sub_vx_vy (machine, nibbles);
   else if (matches_op ("8xy6", high, low))
-    shr_vx_vy (machine, nibbles);
+    shr_vx_vy (machine, nibbles, options.vy_shifting_on);
   else if (matches_op ("8xy7", high, low))
     subn_vx_vy (machine, nibbles);
   else if (matches_op ("8xyE", high, low))
-    shl_vx_vy (machine, nibbles);
+    shl_vx_vy (machine, nibbles, options.vy_shifting_on);
   else if (matches_op ("9xy0", high, low))
     sne_vx_vy (machine, nibbles);
   else if (matches_op ("Annn", high, low))
     ld_i_addr (machine, nibbles);
   else if (matches_op ("Bnnn", high, low))
-    jp_v0_addr (machine, nibbles);
+    jp_v0_addr (machine, nibbles, options.vx_jump_on);
   else if (matches_op ("Cxkk", high, low))
     rnd_vx_byte (machine, nibbles);
   else if (matches_op ("Dxyn", high, low))
-    drw_vx_vy_nibble (machine, nibbles);
+    drw_vx_vy_nibble (machine,
+		      nibbles,
+		      options.display_wait_on,
+		      options.display_clipping_on);
   else if (matches_op ("Ex9E", high, low))
     skp_vx (machine, nibbles);
   else if (matches_op ("ExA1", high, low))
@@ -108,9 +112,9 @@ machine_step (Machine *machine)
   else if (matches_op ("Fx33", high, low))
     ld_b_vx (machine, nibbles);
   else if (matches_op ("Fx55", high, low))
-    ld_i_vx (machine, nibbles);
+    ld_i_vx (machine, nibbles, options.index_increment_on);
   else if (matches_op ("Fx65", high, low))
-    ld_vx_i (machine, nibbles);
+    ld_vx_i (machine, nibbles, options.index_increment_on);
   else
     nop (machine, nibbles);
 

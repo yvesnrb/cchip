@@ -104,38 +104,38 @@ ld_vx_vy (Machine *machine, word nibbles[4])
 }
 
 void
-or_vx_vy (Machine *machine, word nibbles[4])
+or_vx_vy (Machine *machine, word nibbles[4], bool vf_reset_on)
 {
   word vx = nibbles[1], vy = nibbles[2], vx_v = machine->registers[vx],
     vy_v = machine->registers[vy], or;
 
   or = vx_v | vy_v;
   machine->registers[vx] = or;
-  machine->registers[0xF] = 0;
+  if (vf_reset_on) machine->registers[0xF] = 0;
   machine->pc += 2;
 }
 
 void
-and_vx_vy (Machine *machine, word nibbles[4])
+and_vx_vy (Machine *machine, word nibbles[4], bool vf_reset_on)
 {
   word vx = nibbles[1], vy = nibbles[2], vx_v = machine->registers[vx],
     vy_v = machine->registers[vy], and;
 
   and = vx_v & vy_v;
   machine->registers[vx] = and;
-  machine->registers[0xF] = 0;
+  if (vf_reset_on) machine->registers[0xF] = 0;
   machine->pc += 2;
 }
 
 void
-xor_vx_vy (Machine *machine, word nibbles[4])
+xor_vx_vy (Machine *machine, word nibbles[4], bool vf_reset_on)
 {
   word vx = nibbles[1], vy = nibbles[2], vx_v = machine->registers[vx],
     vy_v = machine->registers[vy], xor;
 
   xor = vx_v ^ vy_v;
   machine->registers[vx] = xor;
-  machine->registers[0xF] = 0;
+  if (vf_reset_on) machine->registers[0xF] = 0;
   machine->pc += 2;
 }
 
@@ -173,13 +173,19 @@ sub_vx_vy (Machine *machine, word nibbles[4])
 }
 
 void
-shr_vx_vy (Machine *machine, word nibbles[4])
+shr_vx_vy (Machine *machine, word nibbles[4], bool vy_shifting_on)
 {
-  word vx = nibbles[1], vy = nibbles[2], vy_v = machine->registers[vy];
+  word vx = nibbles[1], vx_v = machine->registers[vx], vy = nibbles[2],
+    vy_v = machine->registers[vy], operand;
     
-  machine->registers[vx] = vy_v >> 1;
+  if (vy_shifting_on)
+    operand = vy_v;
+  else
+    operand = vx_v;
 
-  if (vy_v & 0b00000001)
+  machine->registers[vx] = operand >> 1;
+
+  if (operand & 0b00000001)
     machine->registers[0xF] = 1;
   else
     machine->registers[0xF] = 0;
@@ -204,13 +210,19 @@ subn_vx_vy (Machine *machine, word nibbles[4])
 }
 
 void
-shl_vx_vy (Machine *machine, word nibbles[4])
+shl_vx_vy (Machine *machine, word nibbles[4], bool vy_shifting_on)
 {
-  word vx = nibbles[1], vy = nibbles[2], vy_v = machine->registers[vy];
-    
-  machine->registers[vx] = vy_v << 1;
+  word vx = nibbles[1], vx_v = machine->registers[vx], vy = nibbles[2],
+    vy_v = machine->registers[vy], operand;
 
-  if (vy_v & 0b10000000)
+  if (vy_shifting_on)
+    operand = vy_v;
+  else
+    operand = vx_v;
+    
+  machine->registers[vx] = operand << 1;
+
+  if (operand & 0b10000000)
     machine->registers[0xF] = 1;
   else
     machine->registers[0xF] = 0;
@@ -240,12 +252,18 @@ ld_i_addr (Machine *machine, word nibbles[4])
 }
 
 void
-jp_v0_addr (Machine *machine, word nibbles[4])
+jp_v0_addr (Machine *machine, word nibbles[4], bool vx_jump_on)
 {
-  word v0_v = machine->registers[0x0];
+  word v0_v = machine->registers[0x0], vx = nibbles[1],
+    vx_v = machine->registers[vx], operand;
   address nnn = (nibbles[1] << 8) | (nibbles[2] << 4) | nibbles[3];
 
-  machine->pc = nnn + v0_v;
+  if (vx_jump_on)
+    operand = vx_v;
+  else
+    operand = v0_v;
+
+  machine->pc = nnn + operand;
 }
 
 void
@@ -259,7 +277,10 @@ rnd_vx_byte (Machine *machine, word nibbles[4])
 }
 
 void
-drw_vx_vy_nibble (Machine *machine, word nibbles[4])
+drw_vx_vy_nibble (Machine *machine,
+		  word nibbles[4],
+		  bool display_wait_on,
+		  bool display_clipping_on)
 {
   word vx = nibbles[1], vy = nibbles[2], n = nibbles[3],
     x = machine->registers[vx] % DISPLAY_COLUMNS,
@@ -267,25 +288,34 @@ drw_vx_vy_nibble (Machine *machine, word nibbles[4])
   address sprite_start = machine->i, sprite_end = machine->i + n;
   bool pixel, collision = false;
 
-  for (address i = sprite_start; i < sprite_end; i++)
+  for (address i = sprite_start; i < sprite_end; i++, y++)
     {
-      if (y >= DISPLAY_LINES) break;
+      if (y >= DISPLAY_LINES && display_clipping_on)
+	break;
+      else
+	y %= DISPLAY_LINES;
 
-      for (int j = 0; j < SPRITE_WIDTH; j++)
+      for (int j = 0, cur_x; j < SPRITE_WIDTH; j++)
 	{
-	  if ((x + j) >= DISPLAY_COLUMNS) break;
+	  cur_x = x + j;
+
+	  if (cur_x >= DISPLAY_COLUMNS && display_clipping_on)
+	    break;
+	  else
+	    cur_x %= DISPLAY_COLUMNS;
+
 	  pixel = (machine->memory[i] & (0b10000000 >> j)) != 0;
 
-	  if (machine->display[y][x + j] && pixel) collision = true;
-	  machine->display[y][x + j] ^= pixel;
-	}
+	  if (machine->display[y][cur_x] && pixel) collision = true;
 
-      y++;
+	  machine->display[y][cur_x] ^= pixel;
+	}
     }
 
   machine->registers[0xF] = collision;
   machine->pc += 2;
-  machine->state = MACHINE_WAITING_DSP_INTERRUPT;
+  if (display_wait_on)
+    machine->state = MACHINE_WAITING_DSP_INTERRUPT;
 }
 
 void
@@ -384,36 +414,30 @@ ld_b_vx (Machine *machine, word nibbles[4])
 }
 
 void
-ld_i_vx (Machine *machine, word nibbles[4])
+ld_i_vx (Machine *machine, word nibbles[4], bool index_increment_on)
 {
   word x = nibbles[1];
-  address start = machine->i;
-  int i = 0;
+  address start = machine->i, end = start + x;
 
-  while (machine->i <= (start + x))
-    {
-      machine->memory[machine->i] = machine->registers[i];
-      i++;
-      machine->i++;
-    }
+  for (int i = 0; machine->i <= end; i++, machine->i++)
+    machine->memory[machine->i] = machine->registers[i];
+
+  if (!index_increment_on) machine->i = start;
 
   machine->pc += 2;
 }
 
 void
-ld_vx_i (Machine *machine, word nibbles[4])
+ld_vx_i (Machine *machine, word nibbles[4], bool index_increment_on)
 {
   word x = nibbles[1];
-  address start = machine->i;
-  int i = 0;
+  address start = machine->i, end = start + x;
 
-  while (machine->i <= (start + x))
-    {
-      machine->registers[i] = machine->memory[machine->i];
-      i++;
-      machine->i++;
-    }
+  for (int i = 0; machine->i <= end; i++, machine->i++)
+    machine->registers[i] = machine->memory[machine->i];
 
+  if (!index_increment_on) machine->i = start;
+  
   machine->pc += 2;
 }
 

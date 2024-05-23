@@ -4,6 +4,7 @@
 #include "machine.h"
 #include "sdl.h"
 #include "buzzer.h"
+#include "args.h"
 
 SDL_Renderer*
 sdl_setup (int scaling_factor)
@@ -99,7 +100,7 @@ poll_event (bool *quit, Machine *machine)
 }
 
 void
-sdl_loop (Machine *machine, SDL_Renderer *renderer)
+sdl_loop (Machine *machine, SDL_Renderer *renderer, Options options)
 {
   bool quit = false;
   uint64_t last_machine_step = 0, last_timer_decrement = 0,
@@ -116,7 +117,7 @@ sdl_loop (Machine *machine, SDL_Renderer *renderer)
 
       if (current_time >= (last_machine_step + 1000000))
 	{
-	  machine_step (machine);
+	  machine_step (machine, options);
 	  last_machine_step = current_time;
 	}
 
@@ -126,7 +127,8 @@ sdl_loop (Machine *machine, SDL_Renderer *renderer)
 	  last_timer_decrement = current_time;
 	}
 
-      if (current_time >= (last_display_interrupt + 16666666))
+      if (current_time >= (last_display_interrupt + 16666666)
+	  && options.display_wait_on)
 	{
 	  machine_display_interrupt (machine);
 	  last_display_interrupt = current_time;

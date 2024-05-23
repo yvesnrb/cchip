@@ -1,30 +1,62 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include <string.h>
 #include "args.h"
 
 void
 print_usage ()
 {
-  printf ("Usage: chip [-s number] rompath\n");
+  printf ("Usage: chip [-fidcyj] [-s number] rompath\n");
 }
 
 void
-arg_parse (int argc,
-	   char **argv,
-	   int *scaling,
-	   char rom_path[ROM_PATH_MAX_SIZE])
+set_default_options (Options *options)
 {
-  char c;
-  opterr = 0;
+  options->vf_reset_on = true;
+  options->index_increment_on = true;
+  options->display_wait_on = true;
+  options->display_clipping_on = true;
+  options->vy_shifting_on = true;
+  options->vx_jump_on = false;
+  
+  options->scaling = 10;
+}
 
-  while ((c = getopt (argc, argv, "s:")) != -1)
+Options
+arg_parse (int argc, char **argv)
+{
+  Options options;
+  char c;
+
+  set_default_options (&options);
+  
+  opterr = 0;
+  while ((c = getopt (argc, argv, "s:fidcyj")) != -1)
     {
       switch (c)
 	{
 	case 's':
-	  *scaling = strtol (optarg, NULL, 10);
+	  options.scaling = strtol (optarg, NULL, 10);
+	  break;
+	case 'f':
+	  options.vf_reset_on = false;
+	  break;
+	case 'i':
+	  options.index_increment_on = false;
+	  break;
+	case 'd':
+	  options.display_wait_on = false;
+	  break;
+	case 'c':
+	  options.display_clipping_on = false;
+	  break;
+	case 'y':
+	  options.vy_shifting_on = false;
+	  break;
+	case 'j':
+	  options.vx_jump_on = true;
 	  break;
 	case '?': default:
 	  print_usage ();
@@ -40,6 +72,8 @@ arg_parse (int argc,
     }
   else
     {
-      strncpy (rom_path, argv[optind], ROM_PATH_MAX_SIZE);
+      strncpy (options.rom_path, argv[optind], ROM_PATH_MAX_SIZE);
     }
+
+  return options;
 }

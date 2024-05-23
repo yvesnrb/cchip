@@ -4,6 +4,7 @@
 #ifndef OPS_H
 #define OPS_H
 
+#include <stdbool.h>
 #include "machine.h"
 
 /* 00E0 - Clear the display. */
@@ -61,29 +62,35 @@ void add_vx_byte (Machine *machine, word nibbles[4]);
 void ld_vx_vy (Machine *machine, word nibbles[4]);
 
 /* 8xy1 - Set vx = vx OR vy.
+   
    Performs a bitwise OR on the values of Vx and Vy, then stores the
    result in Vx. A bitwise OR compares the corrseponding bits from two
    values, and if either bit is 1, then the same bit in the result is
-   also 1. Otherwise, it is 0.
+   also 1. If `vf_reset_on` is set to non-zero, this operation always
+   resets the flag register.
  */
-void or_vx_vy (Machine *machine, word nibbles[4]);
+void or_vx_vy (Machine *machine, word nibbles[4], bool vf_reset_on);
 
 /* 8xy2 - Set Vx = Vx AND Vy.
+   
    Performs a bitwise AND on the values of Vx and Vy, then stores the
-   result in Vx. A bitwise AND compares the corrseponding bits from two
-   values, and if both bits are 1, then the same bit in the result is
-   also 1. Otherwise, it is 0.
+   result in Vx. A bitwise AND compares the corrseponding bits from
+   two values, and if both bits are 1, then the same bit in the result
+   is also 1. Otherwise, it is 0. If `vf_reset_on` is set to non-zero,
+   this operation always resets the flag register.
  */
-void and_vx_vy (Machine *machine, word nibbles[4]);
+void and_vx_vy (Machine *machine, word nibbles[4], bool vf_reset_on);
 
 /* 8xy3 - Set Vx = Vx XOR Vy.
+
    Performs a bitwise exclusive OR on the values of Vx and Vy, then
    stores the result in Vx. An exclusive OR compares the corrseponding
    bits from two values, and if the bits are not both the same, then
    the corresponding bit in the result is set to 1. Otherwise, it is
-   0.
+   0. If `vf_reset_on` is set to non-zero, this operation always
+   resets the flag register.
  */
-void xor_vx_vy (Machine *machine, word nibbles[4]);
+void xor_vx_vy (Machine *machine, word nibbles[4], bool vf_reset_on);
 
 /* 8xy4 - Set Vx = Vx + Vy, set VF = carry.
    The values of Vx and Vy are added together. If the result is
@@ -102,8 +109,10 @@ void sub_vx_vy (Machine *machine, word nibbles[4]);
 /* 8xy6 - Set Vx = Vy SHR 1.
    The value of register Vx is set to Vy right shifted once. If the
    least-significant bit of Vy is 1, then VF is set to 1, otherwise 0.
+   If `vy_shifting_on` is set to non-zero, this operation works only
+   with the value of Vx - Vy is ignored.
  */
-void shr_vx_vy (Machine *machine, word nibbles[4]);
+void shr_vx_vy (Machine *machine, word nibbles[4], bool vy_shifting_on);
 
 /* 8xy7 - Set Vx = Vy - Vx, set VF = NOT borrow.
    If Vy > Vx, then VF is set to 1, otherwise 0. Then Vx is subtracted
@@ -114,9 +123,10 @@ void subn_vx_vy (Machine *machine, word nibbles[4]);
 /* 8xyE - Set Vx = Vy SHL 1.
    The value of register Vx is set to Vy left shifted once. If the
    most-significant bit of Vy is 1, then VF is set to 1, otherwise to
-   0.
+   0. If `vy_shifting_on` is set to non-zero, this operation works
+   only with the value of Vx - Vy is ignored.
  */
-void shl_vx_vy (Machine *machine, word nibbles[4]);
+void shl_vx_vy (Machine *machine, word nibbles[4], bool vy_shifting_on);
 
 /* 9xy0 - Skip next instruction if Vx != Vy.
    The values of Vx and Vy are compared, and if they are not equal,
@@ -130,9 +140,11 @@ void sne_vx_vy (Machine *machine, word nibbles[4]);
 void ld_i_addr (Machine *machine, word nibbles[4]);
 
 /* Bnnn - Jump to location nnn + V0.
-   The program counter is set to nnn plus the value of V0.
+   The program counter is set to nnn plus the value of V0. If
+   `vx_jump_on` is set to non-zero, use the highest nibble of nnn as
+   Vx instead of V0.
  */
-void jp_v0_addr (Machine *machine, word nibbles[4]);
+void jp_v0_addr (Machine *machine, word nibbles[4], bool vx_jump_on);
 
 /* Cxkk - Set Vx = random byte AND kk.
    The interpreter generates a random number from 0 to 255, which is
@@ -142,16 +154,22 @@ void jp_v0_addr (Machine *machine, word nibbles[4]);
 void rnd_vx_byte (Machine *machine, word nibbles[4]);
 
 /* Dxyn - Display n-byte sprite starting at memory location I at (Vx, Vy), set VF = collision.
+
    The interpreter reads n bytes from memory, starting at the address
    stored in I. These bytes are then displayed as sprites on screen at
    coordinates (Vx, Vy). Sprites are XORed onto the existing
    screen. If this causes any pixels to be erased, VF is set to 1,
-   otherwise it is set to 0. If the sprite is positioned so part of it
-   is outside the coordinates of the display, it wraps around to the
-   opposite side of the screen. See instruction 8xy3 for more
-   information on XOR.
+   otherwise it is set to 0. See instruction 8xy3 for more information
+   on XOR. If `display_wait_on` is set to non-zero, the interpreter
+   must wait for the next display interrupt before continuing. If
+   `display_clipping_on` is set to non-zero, sprites draw near the
+   edges of the screen get clipped instead of wrapping to the opposite
+   side.
  */
-void drw_vx_vy_nibble (Machine *machine, word nibbles[4]);
+void drw_vx_vy_nibble (Machine *machine,
+		       word nibbles[4],
+		       bool display_wait_on,
+		       bool display_clipping_on);
 
 /* Ex9E - Skip next instruction if key with the value of Vx is pressed.
    Checks the keyboard, and if the key corresponding to the value of Vx
@@ -205,16 +223,20 @@ void ld_f_vx (Machine *machine, word nibbles[4]);
 void ld_b_vx (Machine *machine, word nibbles[4]);
 
 /* Fx55 - Store registers V0 through Vx in memory starting at location I.
+
    The interpreter copies the values of registers V0 through Vx into
-   memory, starting at the address in I.
+   memory, starting at the address in I. Setting `index_increment_on`
+   to non-zero will increment I by the length of memory that was read.
  */
-void ld_i_vx (Machine *machine, word nibbles[4]);
+void ld_i_vx (Machine *machine, word nibbles[4], bool index_increment_on);
 
 /* Fx65 - Read registers V0 through Vx from memory starting at location I.
+
    The interpreter reads values from memory starting at location I
-   into registers V0 through Vx.
+   into registers V0 through Vx. Setting `index_increment_on` to
+   non-zero will increment I by the length of memory that was read.
  */
-void ld_vx_i (Machine *machine, word nibbles[4]);
+void ld_vx_i (Machine *machine, word nibbles[4], bool index_increment_on);
 
 /* NOP - Simply increments the program counter and moves on. */
 void nop (Machine *machine, word nibbles[4]);

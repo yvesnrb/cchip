@@ -14,10 +14,9 @@ main (int argc, char **argv)
   Machine *machine = NULL;
   SDL_Renderer *renderer = NULL;
   SDL_AudioSpec *audio_spec = NULL;
-  int scaling = 10;
-  char rom_path[100];
+  Options options;
 
-  arg_parse (argc, argv, &scaling, rom_path);
+  options = arg_parse (argc, argv);
 
   machine = (Machine*) malloc (sizeof (Machine));
 
@@ -28,11 +27,11 @@ main (int argc, char **argv)
     }
 
   srand (time (NULL));
-  load_rom (machine, rom_path);
+  load_rom (machine, options.rom_path);
   machine_reset (machine);
-  renderer = sdl_setup (scaling);
+  renderer = sdl_setup (options.scaling);
   audio_spec = buzzer_setup ();
-  sdl_loop (machine, renderer);
+  sdl_loop (machine, renderer, options);
 
   buzzer_teardown (audio_spec);
   free (machine);

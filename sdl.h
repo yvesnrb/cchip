@@ -7,6 +7,7 @@
 
 #include <SDL2/SDL.h>
 #include "machine.h"
+#include "args.h"
 
 #define AMBER_ON 247, 206, 70, 255
 #define AMBER_OFF 146, 105, 33, 255
@@ -28,9 +29,9 @@ SDL_Renderer* sdl_setup (int scaling_factor);
  */
 void sdl_render (SDL_Renderer *renderer, Machine *machine);
 
-/* Loop the simulation on `machine`, using `renderer` until a
-   quittable event occurs.
+/* Loop the simulation on `machine`, using `renderer` and options
+   `options` until a quittable event occurs.
  */
-void sdl_loop (Machine *machine, SDL_Renderer *renderer);
+void sdl_loop (Machine *machine, SDL_Renderer *renderer, Options options);
 
 #endif

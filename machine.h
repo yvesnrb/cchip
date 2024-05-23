@@ -5,6 +5,7 @@
 #define MACHINE_H
 
 #include <stdbool.h>
+#include "args.h"
 
 #define MAX_PROGRAM_LENGTH 3584
 #define PROGRAM_START 0x200
@@ -57,7 +58,7 @@ void machine_reset (Machine *machine);
 /* Take a machine `machine` and do the necessary operations to
    complete one clock cycle.
  */
-void machine_step (Machine *machine);
+void machine_step (Machine *machine, Options options);
 
 /* Take a machine `machine` and do the necessary operations to
    decrement all timers.
