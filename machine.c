@@ -36,7 +36,9 @@ machine_reset (Machine *machine)
   for (int i = 0; i < REGISTERS_LENGTH; i++)
     machine->registers[i] = 0;
 
-  cls (machine);
+  for (int i = 0; i < DISPLAY_LINES; i++)
+    for (int j = 0; j < DISPLAY_COLUMNS; j++)
+      machine->display[i][j] = false;
 }
 
 void
@@ -51,7 +53,7 @@ machine_step (Machine *machine, Options options)
   split_nibbles (nibbles, high, low);
 
   if (matches_op ("00E0", high, low))
-    cls (machine);
+    cls (machine, nibbles);
   else if (matches_op ("00EE", high, low))
     ret (machine, nibbles);
   else if (matches_op ("1nnn", high, low))

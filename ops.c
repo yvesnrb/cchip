@@ -7,7 +7,7 @@
 #include "stack.h"
 
 void
-cls (Machine *machine)
+cls (Machine *machine, word nibbles[4])
 {
   for (int i = 0; i < DISPLAY_LINES; i++)
     for (int j = 0; j < DISPLAY_COLUMNS; j++)
