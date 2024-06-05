@@ -75,6 +75,8 @@ mapped to QWERTY like this:
 | 7 | 8 | 9 | E |
 | A | 0 | B | F |
 
+-----------------
+
 | 1 | 2 | 3 | 4 |
 | q | w | e | r |
 | a | s | d | f |
