@@ -28,9 +28,15 @@ machine_reset (Machine *machine)
   machine->sp = SP_START;
   machine->pc = PROGRAM_START;
   machine->state = MACHINE_RUNNING;
+  machine->i = 0;
 
   for (int i = 0; i < sizeof (font); i++)
     machine->memory[i] = font[i];
+
+  for (int i = 0; i < REGISTERS_LENGTH; i++)
+    machine->registers[i] = 0;
+
+  cls (machine);
 }
 
 void
@@ -45,7 +51,7 @@ machine_step (Machine *machine, Options options)
   split_nibbles (nibbles, high, low);
 
   if (matches_op ("00E0", high, low))
-    cls (machine, nibbles);
+    cls (machine);
   else if (matches_op ("00EE", high, low))
     ret (machine, nibbles);
   else if (matches_op ("1nnn", high, low))

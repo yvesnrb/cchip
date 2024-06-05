@@ -17,6 +17,8 @@
 #define ADDRESS_MAX 0xFFF
 #define WORD_MAX 0xFF
 #define FONT_SPRITE_LENGTH 5
+#define REGISTERS_LENGTH 16
+#define MEMORY_LENGTH 4096
 
 typedef struct Machine Machine;
 typedef enum machine_state machine_state;
@@ -37,8 +39,8 @@ enum machine_state {
 
 struct Machine
 {
-  word memory[4096];
-  word registers[16];
+  word memory[MEMORY_LENGTH];
+  word registers[REGISTERS_LENGTH];
   word delay;
   word sound;
   word key_register;

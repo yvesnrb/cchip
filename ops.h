@@ -8,7 +8,7 @@
 #include "machine.h"
 
 /* 00E0 - Clear the display. */
-void cls (Machine *machine, word nibbles[4]);
+void cls (Machine *machine);
 
 /* 00EE - Return from subrotine.
    The interpreter sets the program counter to the address at the top
