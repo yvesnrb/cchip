@@ -17,11 +17,199 @@ haven't tried it yet.
 #+caption: Tetris Demo
 [[file:/screenshots/tetris.gif]]
 
+#+caption: Invaders Splash Screen
+[[file:/screenshots/invaders.png]]
+
+#+caption: Blinky Screen
+[[file:/screenshots/blinky.png]]
+
+#+caption: Tic Tac Toe Screen
+[[file:/screenshots/tictactoe.png]]
+
 * Building this Project
+
+On macOS, setup the Xcode Command Line Tools as well as =libsdl2= and
+=pkg-config= which are available on MacPorts or Brew. Then you can use
+=make chip= or =make debug= to produce the executable without or with
+debug symbols.
 
 * Using the Program
 
+A terse usage description can be obtained by running the executable
+without any arguments:
+
+#+begin_example
+  ~/Desktop/CChip $ ./chip
+  Usage: chip [-fidcyj] [-s number] rompath
+#+end_example
+
+The =rompath= must be a valid CHIP-8 ROM. The =-s= option can be used
+to set a scaling factor on the CHIP's native resolution of 64x32 - the
+default value is 10 which produces a 640x320 window.
+
+The =-fidcyj= switches control the "quirks". The default behavior is
+to follow the original implementation, thus enabling any of these
+switches "turns off" an original behavior. Each switch is outlined as
+follows:
+
+- =f= The AND, OR and XOR opcodes (=8xy1=, =8xy2= and =8xy3=) *will
+  not* reset the flags register to zero.
+- =i= The save and load opcodes (=Fx55= and =Fx65=) *will not*
+  increment the index register.
+- =d= Drawing sprites to the display *will not* wait for the vertical
+  blank interrupt, allowing the machine to draw faster than 60 sprites
+  per second.
+- =c= Sprites drawn at the bottom edge of the screen will wrap around
+  to the opposite side instead of clipping.
+- =y= The shift opcodes (=8xy6= and =8xyE=) only operate on =vX= instead
+  of storing the shifted version of =vY= in =vX=.
+- =j= The "jump to some address plus =v0=" instruction (=Bnnn=)
+  doesn't use =v0=, but =vX= instead where =X= is the highest nibble
+  of =nnn=.
+
+The CHIP-8 has a hexadecimal keypad with keys 0 though F. They are
+mapped to QWERTY like this:
+
+| 1 | 2 | 3 | C |
+| 4 | 5 | 6 | D |
+| 7 | 8 | 9 | E |
+| A | 0 | B | F |
+
+| 1 | 2 | 3 | 4 |
+| q | w | e | r |
+| a | s | d | f |
+| z | x | c | v |
+
+The =roms= directory in this project contains a number of test ROMs,
+and the =roms/games= directory contains some public domain
+games. Below you'll find how to play each game and if they need the
+quirk switches to work, the keys the game uses are presented first by
+their original name and in parentheses the QWERTY key that this
+interpreter uses.
+
+- =15puzzle=. The player is presented with a grid of hexadecimal
+  characters and must rearrange them to look like the CHIP-8's
+  keyboard. Pressing a key moves that tile in the direction of any
+  adjacent empty space.
+- =blinky=. This one requires =-iyd= to work. It's Pac-Man (TM)!
+  Collect all of the pallets in the map while avoiding the
+  ghosts. Each level makes the ghosts smarter. Move left with =7= (=a=),
+  right with =8= (=s=), up with =3= (=3=) and down with =6= (=e=).
+- =blitz=. The player is presented with an airplane and several
+  buildings. Pressing =5= (=w=) will drop a bomb from the airplane and
+  the objective is to time it so that all buildings are destroyed.
+- =brix=. The player is presented with a paddle, a ball and several
+  bricks. Pressing =4= (=q=) will move the paddle left and =6= (=e=)
+  will move the paddle right. The objective is to bounce the ball to
+  destroy all of the bricks, without letting it go past the bottom of
+  the screen.
+- =connect4=. This one requires =-i= to work. This is a two player
+  game in which you take turns dropping coins into a play area - the
+  objective is to produce a vertical, horizontal or diagonal line of 4
+  of you coins. There is no win detection in this game however. Press
+  =4= (=q=) to move selection left and =6= (=e=) to move right. Press
+  =5= (=w=) to drop a coin.
+- =guess=. The player must first think of a number between 1 and 63
+  and is then presented with a grid of numbers. Pressing =5= (=w=)
+  means you see the number you're thinking of and any other key means
+  you don't. After a few iterations the game will guess what number
+  you were thinking of!
+- =hidden=. This one requires =-i= to work. The player is presented
+  with a 4x4 grid of cards. Each card contains a symbol and they start
+  face down. You can flip up two cards at a time to reveal their
+  symbol, the objective of the game is to match two cards with the
+  same symbol. If you flip up two cards and they do not match, they go
+  back to facing down - so you need to have a good memory! Move card
+  selection up with =2= (=2=), left with =4= (=q=), right with =6=
+  (=e=) and down with =8= (=s=). Press =5= (=w=) to reveal a card.
+- =invaders=. This one requires =-y= to work. The player is presented
+  with a movable turret and alien targets that move towards the bottom
+  of the screen. The objective is to shoot down all of the aliens
+  before they make it to the bottom of the screen. Press =5= (=w=) to
+  start the game. Move the turret left with =4= (=q=) and right with
+  =6= (=e=), press =5= (=w=) to shoot.
+- =kaleid=. Four spots appear in a group at the center of the
+  screen. Press keys =2= (=2=), =4= (=q=), =6= (=e=), or =8= (=s=) to
+  create a pattern. Then, press =0= (=x=) to watch the pattern repeat.
+- =maze=. This game produces a maze pattern on the screen. There is no
+  interactivity.
+- =merlin=. The player is presented with a 2x2 grid of squares. Each
+  square is equivalent to the keys =4= (=q=), =5= (=w=), =7= (=a=) and
+  =8= (=s=) from top to bottom and left to right. The game will flash
+  each square in a pattern and the player must press the corresponding
+  keys to reproduce the pattern.
+- =missile=. The player is presented with a turret and several
+  targets. The turret moves from left and right automatically and the
+  player must press =8= (=s=) to fire a shot at the target.
+- =pong2=. It's the classic game of pong for two players. =1= (=1=)
+  and =4= (=q=) moves the left paddle and =c= (=4=) and =d= (=r=)
+  moves the right paddle.
+- =puzzle=. A game very similar to =15puzzle=, but the board gets
+  randomized on startup. Press =2= (=2=) to move pieces down, =8=
+  (=s=) to move pieces up, =4= (=q=) to move pieces left and =6= (=e=)
+  to move pieces right.
+- =syzygy=. This one requires =-i= to work properly. You control a
+  snake and must collect little pallets that spawn across the screen
+  before they disappear. Every time you eat a pallet, the snake
+  grows. Crashing into yourself or into the edges of the map ends the
+  game. Press =e= (=f=) to start a game in border-less mode and =f= (=v=) to
+  start in border mode. Move up by pressing =3= (=3=), down with =6= (=e=),
+  left with =7= (=a=) and right with =8= (=s=).
+- =tank=. The player is presented with a tank and a mobile
+  target. Press =2= (=2=) to move down, =4= (=q=) to move left, =6=
+  (=e=) to move right and =8= (=s=) to move up. The objective is to
+  shoot the target using =5= (=w=). Don't let the target touch you!
+- =tetris=. It's the classic game of Tetris (TM). Press =5= (=w=) and
+  =6= (=e=) to move the bricks left and right. =4= (=q=) rotates and
+  =7= (=a=) drops (hold).
+- =tictac=. This one requires =-iy= to work as intended. The player is
+  presented with a 3x3 grid, players must take turns placing moves on
+  the board to form a vertical, horizontal or diagonal line. Place
+  moves using =1= (=1=), =2= (=2=), =3= (=3=), =4= (=q=), =5= (=w=),
+  =6= (=e=), =7= (=a=), =8= (=s=) and =9= (=d=).
+- =ufo=. The player is presented with a turret and two mobile
+  targets. Pressing =4= (=q=) shoots leftwards, =5= (=w=) shoots
+  upwards and =6= (=e=) shoots rightwards. The goal is to hit either
+  target in a limited amount of shots.
+- =vbrix=. Like =brix= but vertical, press =7= (=a=) to start the
+  game. Press =1= (=1=) to move the paddle up and =4= (=q=) to move
+  the paddle down. It is recommended to disable display interrupting
+  for this one, since it makes heavy use of the draw instruction and
+  will play slow with it enabled.
+- =vers=. This is a two player game where each player controls a
+  line. The goal is to make the other player "crash" into your line or
+  into the walls of the screen. Controls for player one (left) are:
+  =1= (=1=) move left, =7= (=a=) move up, =a= (=z=) move down and =2=
+  (=2=) move right. Controls for player two (right) are: =c= (=4=)
+  move up, =d= (=r=) move down, =f= (=v=) move right and =b= (=c=)
+  move left.
+- =wipeoff=. Another paddle-and-brick game like =brix= and =vbrix= -
+  this one is the simplest of the bunch. Move your paddle left with
+  =4= (=q=) and right with =6= (=e=).
+
 * Project Overview
 
+This project is organized in the following modules, each consisting of a
+=.c= and a =.h= file that are placed in the root of the project:
+
+- =args= Command line argument parsing logic.
+- =buzzer= Sound logic.
+- =debug= Some useful functions for inspecting the interpreter during
+  development.
+- =decoder= Instruction decoding logic.
+- =machine= Machine (registers, memory etc.) definition and logic.
+- =ops= CHIP-8 instructions.
+- =rom= ROM file logic.
+- =sdl= Sound, display and input.
+- =stack= Stack logic.
+
+Additionally you'll find a simple =makefile= and a
+=compile_commands.json= file useful when using the Clang Language
+Server.
+
 * Thank You
+
+- Corax for providing [[https://github.com/Timendus/chip8-test-suite][the test ROMs]] and excellent documentation.
+- Cowgod for providing [[http://devernay.free.fr/hacks/chip8/C8TECH10.HTM][an excellent technical reference]].
+- Zophar's Domain for providing [[https://www.zophar.net/pdroms/chip8/chip-8-games-pack.html][the public domain ROMs]].
 
