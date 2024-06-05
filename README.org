@@ -1,0 +1,27 @@
+This is an interpreter for the [[https://en.wikipedia.org/wiki/CHIP-8][CHIP-8 programming language]]. Its
+default behavior is to emulate the "quirks" present on the original
+COSMAC VIP version of the interpreter, but switches are provided to
+make use of ROMs made for other interpreters. The interpreter passes
+all tests on the [[https://github.com/Timendus/chip8-test-suite][Timendus Test Suite]] for the original CHIP-8 target
+(SUPER-CHIP and XO-CHIP are not supported). Sound, video and input are
+supported via the [[https://www.libsdl.org][Simple DirectMedia Layer]].
+
+This project was written for didactic purposes to learn about the C
+programming language and graphics programming with SDL, I'm not
+providing any binaries and the code is as-is.
+
+The current build target is macOS on Apple Sillicon. There isn't
+anything that should keep this from being compiled on/for Linux but I
+haven't tried it yet.
+
+#+caption: Tetris Demo
+[[file:/screenshots/tetris.gif]]
+
+* Building this Project
+
+* Using the Program
+
+* Project Overview
+
+* Thank You
+
